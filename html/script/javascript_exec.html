@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>JavaScript Execution !!</title>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0">
+    <title></title>
+
+    <style type="text/css">
+	.output{
+		height: 10em;
+	}
+
+	#jscode , #__echo{
+		width: 90%;
+	}
+	#jscode{
+		height: 20em;
+	}
+
+    </style>
+    <script src='/jquery-3.1.0.min.js'></script>
+    <script src='/io_util.js'></script>
+    <script>
+    function execJavascript()
+		{
+			$('#__echo').val('');
+			eval($('#jscode').val());
+		}
+    </script>
+    
+</head>
+<body>
+	<textarea id='jscode' ></textarea>
+	<br />
+	<button id='submit' onclick='execJavascript();'>提交</button>
+	<hr />
+	<textarea id='__echo' class='output' readonly ></textarea>
+</body>
+</html>

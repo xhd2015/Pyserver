@@ -1,0 +1,7 @@
+#libpython
+libpython*.zip
+#plandev
+Plandev*.zip
+#Database
+AQzLike.db
+/backups

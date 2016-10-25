@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HTML Execution !!</title>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0">
+    <title></title>
+
+    <style type="text/css">
+	#htmlcode , #htmlresult{
+		width: 90%;
+	}
+	#htmlcode{
+		height: 20em;
+	}
+	#htmlresult{
+		height:	10em;
+	
+	}
+    </style>
+    <script>
+    function execJavascript()
+		{
+			var inputer=document.getElementById('htmlcode');
+			var htmlresult=document.getElementById('htmlresult');
+			htmlresult.innerHTML=inputer.value;//inputer.value是html代码
+		}
+    </script>
+    
+</head>
+<body>
+	<textarea id='htmlcode' ></textarea>
+	<br />
+	<button id='submit' onclick='execJavascript();'>提交</button>
+	<button id='clear' onclick='clearhtmlresult()'>清除</button>
+	<hr />
+	<div id='htmlresult' readonly ></div>
+</body>
+</html>

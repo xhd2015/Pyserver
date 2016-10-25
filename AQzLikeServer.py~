@@ -1,0 +1,208 @@
+#!/usr/bin/python3
+#-*-coding:utf8;-*-
+#qpy:3
+#qpy:console
+
+__doc__='''
+脚本启动：
+	命令行参数被完整传递到initShares.py脚本中，存储在s.argv中
+	定义函数模式如下:
+	def generate_html(s):
+		...<python coding here>...
+		return [redirect_url,html_string,response_code] 
+
+服务器规则：
+	依据s.path来定位资源
+	s.path为'/'直接永久重定向到'/index.html'
+	s.path为存在相应的${s.path}.py文件，执行这个py文件后返回 。因此服务器内部不允许存在非法的.py文件//replace .html or with .py
+	s.path不存在.py文件，如果是html或者htm文件，直接返回这个html；否则返回资源文件
+	如果找不到,即返回404 NOT FOUND
+
+配置文件规则：
+	配置文件内容  
+			name=value
+	其中name不允许含有空格,value可以含有空格
+	配置文件必须至少包含一项：htmlpath-->s.html_dir
+	如果还使用了数据库，还应当包含:database-->s.dbs
+'''
+
+import socket as s
+import sys#for stdin
+import os
+import time
+import importlib
+import filecmp #可以使用md5进行比较,hashlib.md5 或者md5包
+from urllib.parse import unquote_to_bytes
+
+
+#必须指定lib所在的目录，如果保持lib_dir为空，请使hf,sf与AQzLike在同一个文件夹下
+lib_dir=[]
+lib_dir.append('/storage/emulated/0/com.hipipal.qpyplus/scripts3')#原来的手机版本
+lib_dir.append('/sdcard/python/AQzLikeProj/scripts3')#现在的手机版本
+lib_dir.append('/home/Fulton Shaw/libpython') #电脑的版本
+
+
+sys.path.extend(lib_dir)
+
+
+
+import socketserver_fulton as sf
+import htmlutil_fulton as hf
+
+#可以浏览日志，提交日志
+#浏览临时根据模板构造网页
+
+import http.server as hs
+import sqlite3 as sq
+import sys
+
+
+def transName(path):
+	#__doc__='''path中不允许出现_SlashPoint,否则解析会解析成.,这是由于程序执行特性造成的'''
+	#现在已经证明，不会造成这种困扰
+	path=path.replace('_','_Slash')
+	path=path.replace('.','_Point')
+	return path
+
+def retrieveName(path):
+	path=path.replace('_Point','.')
+	path=path.replace('_Slash','_')
+	return path
+	
+#just for .py modules
+def local_import(path,name):
+	#assume for existence
+	#if not os.path.exists(os.path.join(path,name+'.py'):
+		#return None
+	sys.path.append(path)
+	mlib=sys.modules.get(name,None)
+	#print(mlib)
+	#print('importing',name)
+	if mlib:
+		try:
+			hlib=importlib.reload(mlib) #如果此处出现错误，是因为sys.path中没有包含相应的路径
+			#print('reload',name,'successfully')
+		except AttributeError:#没有reload属性，不支持reload
+			hlib=mlib
+	else:
+		hlib=importlib.import_module(name)
+	sys.path.pop()
+	return hlib
+	
+def get(s,start=None,end=None,exreturn=None):
+	try:
+		if end:
+			res=s[start:end]
+		else:#end=None时表示取单个元素
+			res=s[start]
+	except:
+		res=exreturn
+	return res
+
+
+class LocalHandler(hs.BaseHTTPRequestHandler):
+	#要求s的所有变量都为与模块无关的绝对变量，这是因为需要频繁地传递变量
+	#下面这些变量被传递到init中进行
+	#content_fmt='''<pre>{content}
+	#<i>[{date}]</i><a href='/delete.html?id={id}'>删除</a></pre>'''
+	#dbs=database_dir+'/AQzLike.db'
+
+
+	def do_POST(s):
+		return s.do_GET()
+	def do_GET(s):
+		if s.path=='/':
+			hf.send_redirect(s,'/index.html',301)
+		else:
+			#已经排除s.path='/'的情况,所以s.path='/x+'
+			#调用html下相应的.py文件
+			#import不能是变量，所以通过import构造的方法不能实现服务器路径
+			#通过生成html的方式来实现数据交换，缺点是：每一次都需要重新生成页面，而不是只在需要更新的部分生成。实际上所要求的仅仅是动态的部分而已
+			#通过脚本的方式传递参数给.py，使之重新构造出一个s对象，然后再进行传输即可，譬如 ./index.py 192.168.199.1 20  
+			#但是由于这个脚本所要做的仍然是仅仅发送一个html，响应头部分仍然得由此处发送，所以将其设计为一个本地函数，返回html即可
+
+
+
+			#使用__import__函数或者importlib.import 函数即可
+			#由于文件名中可能含有.，而lib中是不允许这样的，首先将所有的_换成__,再将.换成_即可。这个使用transPath函数实现
+
+			#index.html.py也就是index_Pointhtml.py
+			#htmlib=index_Pointhtml
+
+			#解析s.path,首先s.path是规范化的，即形如'/','/dfas',不能以'/'结尾('/'除外)
+
+			dataIndex=s.path.find('?')
+			if dataIndex==-1:
+				formattedPath=s.path
+			else:
+				formattedPath=s.path[:dataIndex]
+
+			splitIndex=formattedPath.rindex('/')
+			htmlpath=get(formattedPath,0,splitIndex,'')
+			htmlname=get(formattedPath,splitIndex+1,len(formattedPath),'')
+
+			import os.path
+			#如果有py文件，优先返回其py文件的执行结果，否则直接返回该文件
+			copath=s.html_dir+formattedPath
+			if copath.endswith('.html') and os.path.exists(copath.replace('.html','.py')):
+				libname=htmlname.replace('.html','')
+				htmlib=local_import(s.html_dir+htmlpath,libname)#导入函数
+				res=htmlib.generate_html(s)  #返回页面或者重定向信息,这些
+				redirect=get(res,0)
+				html=get(res,1)
+				resp=get(res,2,None,302)
+
+				#print(html)
+				#input('按任意键继续...')
+				if redirect:
+					hf.send_redirect(s,redirect,resp)
+				else:
+					hf.send_html(s,html)
+			elif os.path.exists(copath) and os.path.isfile(copath):
+				with open(copath,'rb') as f:
+					if copath.endswith('.html') or copath.endswith('.htm'): #判断请求的资源类型
+						hf.send_html(s,f.read())
+					else:
+						hf.send_data(s,f.read())
+
+			else:
+				hf.send_notfound(s)
+
+#此处赋予LocalHandler全局编程性质
+LocalHandler.sf=sf
+LocalHandler.hf=hf
+LocalHandler.hs=hs
+LocalHandler.sq=sq
+LocalHandler.get=get#全局get函数
+LocalHandler.helpinfo=__doc__
+
+
+svr=hs.HTTPServer(('',5533),LocalHandler)
+#指定配置文件
+setupfile='AQzLikeServer.ini'
+setups=dict()
+with open(setupfile,'r') as f:
+	for line in f.readlines():
+		line=line.lstrip()
+		if not line.startswith('#'):
+			pos=line.find('=')
+			if pos!=-1:
+				key=line[:pos].strip()
+				value=line[pos+1:-1]
+				setups[key]=value
+
+
+#调用初始化脚本
+#htmlpath=get(sys.argv,1,None,'') #原来的类型是通过命令行指定，现在的命令行参数被传递到initShares.py
+htmlpath=setups.get('htmlpath','./html')
+leftargs=get(sys.argv,1,len(sys.argv),[])
+
+sharelib=local_import(htmlpath,'initShares')
+#传递一系列的参数初始化环境
+sharelib.init(handler=LocalHandler,setups=setups,leftargs=leftargs)
+
+try:
+	svr.serve_forever()
+except:
+	pass
+svr.server_close()

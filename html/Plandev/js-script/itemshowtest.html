@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.00"/>
+    <title>Itemshow Test</title>
+
+    <style type="text/css">
+		.itemshow[itemid="2"] textarea{
+			width : 100%;
+			height : 10em;
+		}
+    </style>
+    <script src='/jquery-3.1.0.js'></script>
+    <script src='/Plandev/js-script/itemshow_v2.js'></script>
+    <script src='/Plandev/js-script/itemshow_add_v1.js'></script>
+    <script>
+
+		$(document).ready(function(){
+			var $$=Itemshow;
+			var $3=ItemshowAdd;
+			var prmpt=$$.findId("prompt");
+			
+			var $s=function(p){prmpt.setStrOrData(p);}
+			var $a=function(p){prmpt.addStrOrData(p);}
+			processResp=function(e){
+					$a("Python exec : "+JSON.stringify(e.data.item.data()));
+					$a("Python output:"+e.data.resp);
+			}
+			processRespDelete=function(e){
+				if(e.data.resp.search(/Exception/))
+					$$.defaultDelete(e);
+			}
+			//without all those code,the html works
+			/**
+			//============
+			//example
+			var item1=$$.findId("1");
+			//$a(item1.data());
+			$s("nothing");
+			$a("==========");
+			//item1.data({id:9,i:"p",j:"xxxxxx"});
+			//$a(item1.data());
+			//$a(item1.collec
+			//item1.
+			//item1.getJDom().find(".delete").click();
+			$a(item1.data());
+			item1.reg(
+				"delete",
+				function(e)
+						{
+							/*
+							var args=$(this).data("clickargs");
+							alert(args.item.getJDom().html()); 
+							$$.defaultDelete(e);
+							* /
+							$a("deleting itemshow with id="+e.data.item.getJDom().attr("itemid"));
+							$$.defaultDelete(e);
+						}
+				);
+			
+			var item2=$$.findId("2");
+			//alert(item2.getJDom().html());
+			//alert($$.getAccess(item2.getJDom()));
+			item2.data({"pycode":"print('god please help me')"});
+			//item2.reg("confirm",$3.defaultConfirm);
+			
+			$a("is ItemshowAdd ? "+ $3.isItemshowAdd(item2.getJDom()));
+			var item3=new $3($$.findIdAsJDom("3"));
+			var farr=[$3.defaultConfirm,{"dataProc":function(data){return data["pycode"];} }]
+			item3.reg("confirm",farr);
+			var item4=new $3($$.findIdAsJDom("4"));
+			item4.reg("confirm",farr);
+			*/
+			/*
+			作为扩展的建议: 所有的子类型都应当一致的支持item中所定义的函数,或者重写它们使其符合标准
+			*/
+			
+			var item3=new $3($$.findIdAsJDom("3"));
+			var farr=[$3.defaultConfirm,{"dataProc":function(data){return data["pycode"];} }]
+			item3.reg("confirm",farr);
+			$$.findId("1").reg("delete",function(e){
+				$3.defaultConfirm(e);//先提交数据,返回什么
+				});
+			$3.findId("2").reg("confirm",farr);
+			new $3($$.findIdAsJDom("4")).reg("confirm",farr);
+			});
+    </script>
+</head>
+<body>
+	<div id="items">
+	   <div class="itemshow" itemid="1"> 
+			Plan <span access_key="id">我的字幕组啊</span> <br/>
+			XXEcho <span access_key="i">如今你在哪里</span>  <br/>
+			Had <span access_key="j"></span> 
+			IN <span access_key="k"></span>	
+			By <span access_key="l">v</span> 
+			<span access_key="pycode" hidden>print("yes")</span>
+		<button class="delete" targetUri="/script/html_script/execute_python.html" onresp="processRespDelete">Delete</button>
+		<button class="change">Change</button>
+		<button class="cancle" style="display:none">Cancle</button>
+		<button class="confirm" style="display:none">Confirm</button>
+	   </div>
+	   <div class="itemshow" itemid="2">
+			<textarea access_key="pycode"></textarea> <br/>
+			<button class="confirm" targetUri="/script/html_script/execute_python.html" onresp="processResp">Commit</button>
+			<button class="clear">Clear</button>
+	   </div>
+	   <span class="itemshow" itemid="3">
+			<input access_key="pycode"></input> <br />
+			<button class="confirm" targetUri="/script/html_script/execute_python.html" onresp="processResp" >Search</button>
+	   </span>
+	   <span class="itemshow" itemid="4">
+		   <input access_key="pycode" value="[all]" hidden></input>
+	   	<button class="confirm" targetUri="/script/html_script/execute_python.html" onresp="processResp">Search All</button>
+	   </span>
+	</div>
+	
+	<div class="itemshow" itemid="prompt" style="border:1px solid;height:15em;">
+		<button class="clear">Clear</button>
+		<textarea access_key="p" disabled style="width:100%;height:100%"></textarea>
+	</div>
+   
+
+</body>
+</html>

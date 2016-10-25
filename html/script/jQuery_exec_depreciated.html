@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>JavaScript Execution !!</title>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0">
+    <title></title>
+
+    <style type="text/css">
+	#jscode , #jsresult{
+		width: 90%;
+	}
+	#jscode{
+		height: 20em;
+	}
+	#jsresult{
+		height:	10em;
+	
+	}
+    </style>
+    <script src='https://code.jquery.com/jquery-3.1.0.min.js'></script>
+    <!--use https://code.jquery.com/jquery-3.1.0.js to get uncompressed one-->
+    <script>
+	function print(s)
+	{
+		var jsresult=document.getElementById('jsresult');
+		jsresult.value+=s.toString()+'\n';
+	}
+    function execJavascript()
+		{
+			var inputer=document.getElementById('jscode');
+			var jsresult=document.getElementById('jsresult');
+			jsresult.value='';
+			eval(inputer.value);
+		}
+    </script>
+    
+</head>
+<body>
+	<textarea id='jscode' ></textarea>
+	<br />
+	<button id='submit' onclick='execJavascript();'>提交</button>
+	<hr />
+	<textarea id='jsresult' readonly ></textarea>
+</body>
+</html>

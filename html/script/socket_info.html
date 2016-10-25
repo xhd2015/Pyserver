@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0">
+    <title>Socket Info !!!</title>
+
+    <style type="text/css">
+		pre{
+		   white-space: pre-wrap;
+           white-space: -moz-per-wrap;
+           word-wrap: break-word;
+		}
+    </style>
+    <script src='/jquery-3.1.0.js'></script>
+    <script>
+    
+    </script>
+    
+</head>
+<body>
+	<section>
+		<h4>Socket</h4>
+		<ul>
+			<li>
+<pre>int socket(int domain, int type, int protocol);
+			socket函数对应于普通文件的打开操作。普通文件的打开操作返回一个文件描述字，而socket()用于创建一个socket描述符（socket descriptor），它唯一标识一个socket。这个socket描述字跟文件描述字一样，后续的操作都有用到它，把它作为参数，通过它来进行一些读写操作。
+
+正如可以给fopen的传入不同参数值，以打开不同的文件。创建socket的时候，也可以指定不同的参数创建不同的socket描述符，socket函数的三个参数分别为：
+
+    domain：即协议域，又称为协议族（family）。常用的协议族有，AF_INET、AF_INET6、AF_LOCAL（或称AF_UNIX，Unix域socket）、AF_ROUTE等等。协议族决定了socket的地址类型，在通信中必须采用对应的地址，如AF_INET决定了要用ipv4地址（32位的）与端口号（16位的）的组合、AF_UNIX决定了要用一个绝对路径名作为地址。
+    type：指定socket类型。常用的socket类型有，SOCK_STREAM、SOCK_DGRAM、SOCK_RAW、SOCK_PACKET、SOCK_SEQPACKET等等（socket的类型有哪些？）。
+    protocol：故名思意，就是指定协议。常用的协议有，IPPROTO_TCP、IPPTOTO_UDP、IPPROTO_SCTP、IPPROTO_TIPC等，它们分别对应TCP传输协议、UDP传输协议、STCP传输协议、TIPC传输协议.
+</pre>
+		</li>
+		<li>Socket 套接字家族(socket families) <br/>
+			AF_INET(使用ip , port作为bind对象) , AF_INET6 , AF_UNIX(使用系统文件作为bind对象）,...(还有其他类型的绑定，如AF_BLUETOOTH,AF_CAN等，使用不同的bind类型)<br />
+			AF_INET的地址类型 : ''--->INADDR_ANY &lt;broadcast&gt;---->INADDR_BROADCAST
+			PF_PACKET
+		</li>
+		<li>Socket 类型(socket types)<br />
+		SOCK_STREAM(默认支持):用户只需要填充应用层数据<br/>
+		SOCK_DGRAM(默认支持)<br/>
+		SOCK_RAW:原始套接字,所有的报文都需要用户来填;端口对于原始套接字没有意义.如果是connect,则使用send来发送报文,否则使用sendto;如果是bind,则监听发送到本地的数据包;内核不会发送udp,tcp数据包给原始套接字,icmp,igmp报文发送给原始套接字,不能识别的报文发送,由protocol匹配的类型发送给原始套接字<br/>
+		&nbsp;&nbsp;使用SOCK_RAW可以选择在网络层还是链路层.1.网络层socket(AF_INET,SOCK_RAW,IPPROTO_TCP|UDP|ICMP|RAW) 2.链路层socket(PF_PACKET,SOCK_RAW,htons(ETH_P_IP|ETH_P_(R)ARP|ETH_P_ALL))<br/>
+		PF_INET相当于setsocketopt包含IP头<br/>
+<pre><i><b>引用</b></i><br/>[对于socket(AF_INET, SOCK_RAW, IPPROTO_IP),其原型为
+int socket (int domain, int type, int protocol);
+1 参数protocol用来指明所要接收的协议包，如果是象IPPROTO_TCP(6)这种非0、非255的协议，当操作系统内核碰到ip头中protocol域和创建socket所使用参数protocol相同的IP包，就会交给这个raw socket来处理，因此，一般来说，要想接收什么样的数据包，就应该在参数protocol里来指定相应的协议。当内核向此raw socket交付数据包的时候，是包括整个IP头的，并且已经是重组好的IP包。
+2 如果protocol是IPPROTO_RAW(255)，这时候，这个socket只能用来发送IP包，而不能接收任何的数据。发送的数据需要自己填充IP包头，并且自己计算校验和。
+3 对于protocol为0（IPPROTO_IP)的raw socket。用于接收任何的IP数据包。其中的校验和和协议分析由程序自己完成。	
+socket的第三个协议参数用于ip数据包的类型字段,发送则自动填充,接受则自动匹配;IPPROTO_RAW只能用于sender(工作在网络层,IP层),IPPROTO_IP用于接受
+系统内核中的数据包如果一直没有处理,就会停留在内核中等待相应的程序接收.
+IPPROT_IP=0,表示自动匹配套接字家族和套接字类型(如果两者只对应一种套接字协议,否则0是无效的)
+如果启用IP_HDRINCL=1,则需要手动封装IP首部,IPPROTO_RAW=255自动实现了IP_HDRINCL=1
+</pre>
+<pre><b>规范引用:PF_PACKET</b>
+再来理解套接字家族的含义.<strong>(仅仅这些模式是可选的)PF_PACKET-->{SOCK_RAW,SOCK_DGRAM}</strong>,此套接字家族工作在DataLink,链路层,SOCK_RAW返回完整数据包,SOCK_DGRAM返回去除首部的数据包 使用man packet;其中ETH_P_XXX-->{ALL:3	ARP:2054	RARP:32821	IP:2048}
+                      <strong>AF_INET-->{ SOCK_RAW-->{defined in RFC 1700},SOCK_STREAM-->{0,IPPROTO_TCP},SOCK_DGRAM-->{0,IPPROTO_UDP} }</strong>
+</pre>
+		SOCK_RDM<br />
+		
+		</li>
+		<li>函数:<br />
+		setblocking()<br />
+		settimeout()<br />
+		gethostbyname()<br />
+		gethostbyadder(ip_addr)<br/>
+		gethostname() : 本机hostname<br />
+		sethostname(name) : 设置hostname
+		getprotobyname(name) :获取协议号<br/>
+		getservbyname(servicename,protocal='tcp','udp')<br />
+		getservbyport(port,protocal='tcp','udp')<br />
+		inet_aton(ip_str) : 获取字符串地址的二进制形式<br />
+		inet_ntoa(byte_like_ip) : <br />
+		getdefaulttimeout() : 获取新socket的默认超时时间<br />
+		setdefaulttimeout()<br />
+		if_nameindex() : 获取所有的网络接口<br />
+		if_nametoindex(name) : <br />
+		if_indextoname(index) :<br />
+		socket(...):创造套接字<br />
+		socketpair(...) :默认是AF_UNIX<br />
+		htons/htonl(integer):将16/32字节的整数转为网络序<br/>
+		ntohs/ntohl:将网络序转为主机字节序<br/>
+		
+		</li>
+		<li>socket方法:<br />
+		accept()<br />
+		bind(address) : INADDR_ANY意指任何地址,<br />
+		close()<br />
+		connect(address) : When connect(2) is called on an unbound socket, the socket is automatically bound to a random free port or to a usable shared port with the local address set to INADDR_ANY;此话的含义是,任何socket都需要设置本地ip和远程ip,即选择发送地址和接收地址.connect和bind就是做这两件事的.<br />
+		detach() : like close(),but return the fileno as kept<br />
+		fileno()<br />
+		getpeername()<br />
+		getsockname()<br />
+		getsockopt(level,optname)<br />
+		setsocketopt(level,optname,value):可以设置ttl等数值<br/>
+		gettimeout()<br />
+		settimeout(float_value) :对阻塞式的socket的设置<br />
+		listen([backflag]) : 如果backflag没有指定,一个合理的值就会被设置<br />
+		recv(maxbufsize,[flags])<br />
+		recv_into(buf)<br />
+		recvfrom(...) : like recv , but return (data,addr);used for UDP to identity who that return data<br />
+		recvfrom_into(buf)<br />
+		send(bytes)<br />
+		sendall(bytes)<br />
+		sendto(bytes,address):示例:使用udp(tcp同理,即使面向连接也可以使用sendto,而不必使用bind)发送数据,udpsender=socket(AF_INET,SOCK_DGRAM) || socket(AF_INET,SOCK_RAW,IPPROTO_UDP);udpsender.sendto(data,addr)<br />
+		setblocking(flag) : setblocking(True)==settimeout(None),setblocking(False)==settimeout(0.0)<br />
+		ioctl(control,option): 只在windows系统上使用-->if os.name=='nt'来判断<br/>
+		</li>
+		<li>模式blocking,none-blocking,timeout的区别<br />
+		blocking:操作需要等待直到数据或者错误返回<br />
+		none-blocking:如果操作不能立即得到数据,操作就会失败<br />
+		timeout:在一定的时间内返回信息<br />
+		面向连接:所谓的面向连接指的是在主机上是否保持一个socket持续存在,这种持续存在在4次握手之后关闭<br/>
+		</li>
+		</ul>
+	</section>
+	<section>
+		<h4>SSL:TLS/SSL wrapper socket</h4>
+	</section>
+	<section>
+		<h4>socketserver : 简化网络服务器编写的工作</h4>
+	</section>
+	<section>
+		<h4>使用ctypes,struct解码数据</h4>
+		<ul>
+			<li>
+<pre>使用ctypes.Structure构结构体
+	例子: class IP(ctypes.Structure):
+			_fields_=[
+			('ihl',ctypes.c_ubyte,4),#ctypes有 c_ubyte c_ushort c_ulong
+			('version',ctypes.c_ubyte,4),
+			...
+			]
+			#__new__ is called with __init__
+			def __new__(self,args):
+				return self.from_buffer_copy(args)
+			def __init__(self,args):
+				...
+</pre>
+			</li>
+			<li>
+<pre>使用struct包
+格式定义: {@ -->native, = -->native , < --> little, > -->big, !-->网络字节 }主要影响数据的格式,包括字节序,size(一次存放的数据的基本字节数)和对齐,默认字节序为@为native格式.类型格式,最常用{b,B --> (unsigned)char  hH-->short  lL iI fd N-->size_t p,s相同-->字符数组}
+struct.pack(fmt,v1,v2,...)
+struct.unpack(fmt,buffer)
+结合namedtuple使用:IPHeader=namedtuple('IPHeader','version ilen ...');IPHeader(struct.unpack(...))
+
+
+</pre>
+			</li>
+		</ul>
+	</section>
+	<section>
+		<h4>Format定义</h4>
+		<ul>
+			<li>
+<pre>IP头 (20字节)
+以太网格式:type:16-->0800	ip_entity:38~1492bytes
+ihl:4 version:4	tos:8 len:16 id:16 offset:16 ttl:8 protocol_num:8 sum:16 src:32 dst:32 +可选项(可选项仍然属于IP头部,使用ihl*4获取IP包裹的数据部分,如ICMP报文)
+struct:BBHHHBBHII
+size:20+
+protocol_num:1--&gt;ICMP  2--&gt;IGMP	6--&gt;tcp	17--&gt;udp
+</pre>
+		</li>
+		<li>
+<pre>ICMP定义
+通用结构体: type:8	code:8	crc_sum:16	其他内容
+ICMP报文的类型由type,code共同决定.
+	type=0时,code只能取0,含义是ping应答.
+	type=3是不可达信息,code=0网络不可达 code=1主机不可达 code=2协议不可达 code=3端口不可达 code=4需要分片但是不被允许	code=5源站选路失败	code=6目的网络未知	code=7目的主机未知  ...
+	type=4 code=0源端关闭
+	type=5 会引起内核更新路由表code=0网络重定向	code=1主机重定向	code=2 code=3
+	type=8	code=0ping回显
+	type=11	超时 code=0 ttl已经降低为0
+	type=12	参数有问题 code=0IP首部错误	code=1缺少必须参数
+	type=13 code=0时间戳请求
+	type=14 code=0时间戳应答
+	type=17,18 code=0 地址掩码请求/应答
+其中多数是差错报文,首先,在相应icmp差错报文时不会产生另一份差错报文(否则会无限循环下去);其次,差错报文的内容=原IP首部+IP前8个字节(表明tcp/udp端口以便发送给程序)
+一般而言报文的源地址只能是单个主机,不能是0地址,广播地址,多播地址.
+目标不可达: 				type:1		code:1		crc_sum:2	unused:2	next_hop_mtu:2
+icmp-echo(-reply):      type=0/8:1  code=0:1    chksum:2    id:2        seq:2 			padding:18
+icmp-netmask:			type=17/18	code=0		chksum 		id:2 		seq:2 			netmask:4
+icmp-timestamp:			type=13/14	code=0		cksum		id			seq				start-time:4	recv-time:4	transfer-time:4
+icmp-端口不可达:			type=3		code=3		chksum		unused:4	IP-head:20		IP-data:8
+struct:BBHHH
+size:8
+</pre>
+		</li>
+		<li>
+<pre>ARP,RARP定义
+其以太网完全格式为 type:16-->{0800:IP 0806:ARP 0835:RARP} arp_entity:28*8 pad:10*8
+fmt(不包含以太网首部,单位:字节):dst_mac:6 src_mac:6 type:2	hardware_type:2{1表示以太网地址}	protocol_type:2{从?映射到mac,0x8000表示ip}	mac_len:1{一本为6}	protocol_len:1{一般为4}	op:2{1-arp请求 2-arp应答	3-rarp请求	4-rarp应答}	src_mac:6	src_ip:4	dst_mac:6	dst_ip:4
+struct格式:!6s6sHHHBBH6s4s6s4s
+namedtuple:dst_mac_h src_mac_h type hardware_type protocol_type mac_len protocol_len op src_mac_e src_ip dst_mac_e dst_ip
+</pre>
+		</li>
+		<li>
+<pre>TCP定义
+TCP数据报的头和数据是分别发送的,这一点总是可以保证的.
+</pre>
+		</li>
+		</ul>
+	</section>
+	<section>
+		<h4>Scapy包<sup><a target='__blank' href='http://www.secdev.org/projects/scapy/doc/usage.html'>官方文档</a></sup></h4>
+		<ul>
+			<li>安装:pip3 install scapy-python3</li>
+			<li>sniff(filter=''-->指定数据包类型,iface='any'-->指定网卡,prn=function-->数据包回调函数,count=N-->数据包个数,stor=true|false-->是否在内存中保存数据)</li>
+			<li>filter='tcp port 110 or tcp port 25'过滤tcp , 'ip host xxxxxx'过滤ip</li>
+			<li>packet :packet[ARP]获取ARP类型的数据包 <br/>
+				display()	show()
+			</li>
+			<li>端口帮助:110 POP3 ; 143 IMAP ; 25 SMTP</li>
+			<li>send(packet,count):构造数据包到网络层准备发送   layer:3,网络层,IP,ARP</li>
+			<li>sendp(packet,iface,loop,inter,count):构造数据包到链路层准备发送   layer:2,Ether</li>
+			<li>sr():send-receive 发送和接受数据报,返回值包括未响应的数据报;如sr(IP(dst='www.baidu.com')/ICMP()/'XXXX')	layer:3,链路层,IP,ARP...</li>
+			<li>srp():layer:2</li>
+			<li>ARP(op,psrc,pdst,hwdst,hwsrc,---次要参数---,hwtype,ptype,plen):构造ARP数据包 <br/>
+<pre>例子
+     ptype     = 0x800
+     hwlen     = 6
+     plen      = 4
+     op        = is-at
+     hwsrc     = d4:ee:07:12:2d:22
+     psrc      = 192.168.199.1
+     hwdst     = 9c:d2:1e:89:3a:e1
+     pdst      = 192.168.199.117
+ </pre>
+</li>
+			<li>IP(version,ihl,tos,len,id,flags,frag,ttl,proto,chksum,src,dst,options)</li>
+			<li>ICMP : 默认是echo-reply报文</li>
+			<li>TCP(dport,sport,flag))
+<pre>例子
+	sport     = 5533
+	dport     = 39198
+	seq       = 1837469269
+	ack       = 1311074637
+	dataofs   = 8
+	reserved  = 0
+	flags     = A
+	window    = 350
+	chksum    = 0xfe28
+	urgptr    = 0
+	options   = [('NOP', None), ('NOP', None), ('Timestamp', (11262687, 11262687))]
+</pre>
+
+			</li>
+			<li>Ether(dst,src,type)</li>
+			<li>wrpcap(file,packet):保存数据包到文件</li>
+			<li>rdpcap(file):读取数据包</li>
+			<li>hexdump(data) : 以16进制显示数据</li>
+			<li>srloop(...,count):对一个包进行多次发送和结果保存</li>
+			<li>fuzz(packet) : 对一个packet进行随机的填充 , 比如 IP(dst='...')/fuzz(UDP()/DNS(...))  ,在这个数据报中,IP层是正常的,但是UDP之后的数据,如chksum会被重新计算.</li>
+			<li>RandShort():随机产生一个16字节整数</li>
+			<li>Example 1 : get_mac(ip)--> <br/>
+				&nbsp;&nbsp;resp,unanswered=srp(Ether(dst='ff:ff:ff:ff:ff:ff')/ARP(pdst='127.0.0.1'),retry=10,timeout=2) <br/>
+				&nbsp;&nbsp;return resp
+			</li>
+			<li>Example 2: arp_reset(ip_to_reset,mac_to_set,ip_who_send_this) <br/>
+				send(ARP(op=2,psrc=ip_who_send_this,pdst=ip_to_set,hwsrc=mac_to_set,hwdst='ff:ff:ff:ff:ff:ff'),count=50) <br/>
+				之后查看主机ip_to_set上的arp缓存,已ip_who_send_this项经被更新为mac_to_set <br/>
+				arp欺骗的关键在于保持目的主机的arp缓存,所以使用循环和进程sleep()语句对send进行重复<br/>
+			</li>
+			<li>Examlpe 3:Free Arp Asking -- free_arp(local_ip,local_hw) <br/>
+				resp,unans=sr(ARP(op=2,psrc=local_ip,pdst=local_ip,hwsrc=local_hw,hwdst='ff:ff:ff:ff:ff:ff') <br/>
+				resp是一个列表,包括所有的响应,其中每一项都是一个二元组,第一项是请求,第二项是响应. <br />
+				使用tcpdump arp 即可看到发送到一个广播的arp请求	<br/>
+			</li>
+			<li>Example 4: 发送TCP数据包,'GET /index.html HTTP/1.1\r\n\r\n' <br/>
+					由于TCP涉及多次握手,所以使用send时需要分多次发送确认信息,最后才能发送数据报<br/>
+			</li>
+			<li>Example 5: 扫描网络上的主机
+			</li>
+			<li>Example 6: multi-cast ping多主机ping <br/>
+				ans,unans=sr(IP(dst="192.168.1.1-254")/ICMP()) <br/>
+				也可以使用192.168.1.*创造多个地址<br/>
+				此处使用scapy包的多任务特性一次创建了多个ping包然后发送,注意ICMP()为回显请求,ICMP()/'xx'为回显回复.
+			</li>
+			<li>Example 7: ICMP <br/>
+				时间戳 :sr(IP(dst=rip)/ICMP(type=13))
+				
+			</li>
+			<li>示例:</li>
+		</ul>
+	</section>
+	<section>
+		<h4>ARP 欺骗攻击</h4>
+		<ul>
+			<li>常规arp:<br />
+			<ul>
+				<li>数据链路如以太网和令牌环网的寻址机制:使用48bit的硬件地址来匹配网络接口.接口不检查ip地址,只查看接口地址.当主机把以太网网帧发送到同一局域网的主机时,使用48bit地址确定接口
+				</li>
+				<li>两个远程主机通信时并不需要实现知道mac地址,只有当数据报源和地址都处于同一以太网中时才发生arp请求</li>
+				<li>arp应答是一个网络广播,</li>
+			</ul>
+			
+			</li>
+		</ul>
+	</section>
+	</section>
+	<section>
+		<h4>PCAP Filter</h4>
+		<ul>
+			<li>手册 : linux man 7 pcap-filter;pcap含义是packet capture<br />
+			<li>语法 : 过滤packet的语法由'修饰符(type,dir或proto)+id(name或者number)'  以及  特例 组成</li>
+			<li>type修饰符 : host(默认) net port portrange</li>
+			<li>dir修饰符 :dir修饰符限定从id来的传输方向,取值:src dst 'src or dst'(默认) 'src and dst' {ra ta addr1-4}(仅对8021.wlan有效) </li>
+			<li>proto修饰符 : 限定传输协议 ,默认取值为所有可能协议(如果指定端口,则udp,tcp是可能的),取值:ether fddi wlan tr ip ip6 arp rarp decnet tcp udp</li>
+			<li>特例:gateway broadcast less greater 数学表达式</li>
+			<li>逻辑运算符:and or not () 用于组合多个单体过滤语法.</li>
+			<li>例子:<br/>
+				dst host 127.0.0.1 <br/>
+				ether dst  ff:ef:28:ff:ff:ff<br/>
+				gateway 127.0.0.1 ; 如果packet将127.0.0.1作为网关<br/>
+				less 65535; 限定包裹长度<br/>
+				tcp,udp,icmp等价于proto tcp ,udp icmp<br/>
+				ip,arp,ip6,rarp--->等价于ether proto x<br/>
+				ifname/on eth0--->限定网卡<br/>
+				gateway snup and (port ftp or ftp-data) --->限定网关以及服务类型 <br/>
+				icmp[icmptype] != icmp-echo and icmp[icmptype] != icmp-echoreply --->过滤掉ping程序<br/>
+			</li>
+		</ul>
+	</section>
+	<section>
+		<h4>ARP 欺骗攻击</h4>
+		<ul>
+			<li>常规arp:<br />
+			<ul>
+				<li>数据链路如以太网和令牌环网的寻址机制:使用48bit的硬件地址来匹配网络接口.接口不检查ip地址,只查看接口地址.当主机把以太网网帧发送到同一局域网的主机时,使用48bit地址确定接口
+				</li>
+				<li>两个远程主机通信时并不需要实现知道mac地址,只有当数据报源和地址都处于同一以太网中时才发生arp请求</li>
+				<li>arp应答是一个网络广播,</li>
+			</ul>
+			
+			</li>
+		</ul>
+	</section>
+	</section>
+	<section>
+		<h4>端口扫描(nmap/zenmap)</h4>
+		<ul>
+			<li>网络扫描的4个部分:<br/>
+				主机发现（Host Discovery）<br/>
+				端口扫描（Port Scanning）<br/>
+				版本侦测（Version Detection）<br/>
+				操作系统侦测（Operating System Detection）<br/>
+			</li>
+			<li>nmap扫描类型:<br/>
+				在局域网内，Nmap是通过ARP包来询问IP地址上的主机是否活动的，如果收到ARP回复包，那么说明主机在线。<br/>
+				-sS	SYN 半握手(不建立连接,系统日志不会记录)(默认扫描类型,需要root)<br/>
+				-sT	TCP扫描,用于发现TCP端口,需要调用connect函数完成三次连接<br/>
+				-sU	UDP扫描,发送udp数据报到特定端口,根据返回信息确定端口的可达性<br/>
+				-sF	FIN标志扫描,如果系统设置了SYN防火墙,可以使用这个替代,也不会产生日志<br/>
+				-sP	Ping扫描,这种方式只用于发现主机,不会附带端口扫描<br/>
+				-sV	端口软件类型和版本检测<br/>
+				-sL	列出将要扫描的主机地址,但是不进行扫描<br/>
+				-O 检测操作系统类型(通过和海量数据对比)<br/>
+				-O --osscan-guess 猜测操作系统的类型<br/>
+				-PN	避免检测远程主机,如果主机不在网络上就忽略,如nmap -O -PN 192.168.1.1/24<br/>
+				-T[0-5]	指定时序,级别越高,扫描速度越高,但也越容易被IDS检测和屏蔽掉<br/>
+				-A	使用进攻性的扫描.如nmap –T4 –A –v targethost<br/>
+				-v	显示扫描过程<br/>
+			</li>
+			<li><a href='http://blog.csdn.net/aspirationflow/article/details/7694274'>参考1</a></li>
+		</ul>
+	</section>	
+	<section>
+		<h4>主机发现(netcat)</h4>
+		<ul>
+			<li>原理:网络主机在处理UDP闭合端口时,目标主机通常返回一个ICMP端口不可达信息.收到这样的信息即意味着主机是存活的.</li>
+		</ul>
+	</section>
+	<section>
+		<h4>TCP代理服务器</h4>
+		<ul>
+			<li></li>
+		</ul>
+	</section>
+	<section>
+		<h4>其他</h4>
+		<ul>
+			<li>Linux系统上只能监听ICMP报文,并且需要系统权限</li>
+			<li>混杂模式对于监听而言,可以截取网卡上经过的所有数据包,非混杂模式则只能监听目的地址是本机的数据包.</li>
+			<li>网关:是一个实际的机器,地址一般是xxxxxxxx.254,但也可以说xxxxxx.1之类的任意有效地址</li>
+			<li>广播地址:0.0.0.0或者全1地址,全1指的是主机号部分</li>
+			<li>报文类型(按封装格式):应用层-->{http , ftp , https}  传输层,网络层-->{tcp , udp , icmp , igmp} ,链路层-->{ip,arp,rarp} -->{以太网封装}</li>
+			<li>slip链路封装:链路是p2p单工传输,串行传送数据的封装实质上就是对将要发送的字符做转义处理.</li>
+			<li>多进程:threading.Thread(target,args=(...));threading.Thread.start()</li>
+			<li>本机字节序检测方法:struct.pack('@h',0x1155)[0]==0x55 True-->高位在前  False-->低位在前</li>
+			<li>traceroute原理:主机并不是对所有的ICMP报文回应(除非内核那样做了),对于ttl=1但是pdst又不是自身的报文,主机返回超时信息;当pdst是自身时,主机可能并不响应,此时发送一份udp数据包,确认没有回应超时的主机是否存在,如果返回ICMP-端口不可达信息,则主机就是可达的.这就是traceroute的原理
+			</li>
+			<li><strong>常见的网络任务</strong>: 主机发现(nmap) , 端口检测(nc) , arp代理(scapy) , HTTP流量截取(scapy) , 路由表操作(route)</li>
+		</ul>
+	</section>
+	<footer>
+		<a href='/debuginfo.html' target='blank'>Go Debug !!!</a>
+	</footer>
+
+</body>
+</html>
+ 

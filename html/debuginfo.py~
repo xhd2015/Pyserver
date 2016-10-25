@@ -1,0 +1,38 @@
+#!/bin/python3
+import os
+
+def listdir_R(s,f):
+	if os.path.isdir(s.html_dir+'/'+f):
+		res=f+'\n'
+		for i in os.listdir(s.html_dir+'/'+f):
+			res+=listdir_R(s,f+'/'+i)
+	else:
+		res='<a href="'+f+'">'+f+'</a>'+'\n'
+	return res
+
+def generate_html(s):
+	localdir=listdir_R(s,'')
+	title='debug info'
+	script=r'''
+function load_more()
+{
+	var container=document.getElementById('container')
+	var pre=document.createElement('pre')
+	pre.appendChild(document.createTextNode('more'))
+	container.appendChild(pre)
+}
+'''
+	body=r'''
+<div id='container'>
+	<h4>概览信息</h4>
+	<pre>'''+s.helpinfo+r'''</pre>
+	<h4>本地目录</h4>
+	<pre>'''+localdir+r'''
+</div>
+<div id='footer'>
+	<u id='content-loader' style='cursor: pointer;' onclick='load_more();'>加载更多</u>
+<div>
+'''
+
+	html=s.hf.format_html(body=body,title=title,script=script)
+	return ['',html]

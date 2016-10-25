@@ -1,0 +1,132 @@
+
+
+
+<!--规则综述
+	越少越好,遵守默认.itemid属性必须
+	class=itemshow中的项的class名可以尽量简写 delete,change,cancle,confirm,clear
+	
+	class=pshow,pfixed,pchange表明这一项的状态
+	
+	如果为p,pre,其他;默认具有class pshow;除非class=pfixed
+		如果
+	如果是input,textare默认具有pchange
+		默认行为:针对所有具有access_key的内部对象
+		允许传入一个函数f,对access_key对象进行过滤.
+		f接受$element作为参数,表示选中与否.默认的函数是对
+			change:
+				p			input[type=text]
+				pre			textarea
+				函数 f(item) 表示完成某件事情,change接受覆盖的参数表示期望转换的类型{p:textarea}
+				change复制所有的元素,然后转换它们,隐藏原来的元素.你可能会需要影响data的行为,即不需要对原来的元素进行元素选取等.
+				只要将其access_key去掉即可.这是change的默认实现.
+			cancle:
+				textarea	--		pre
+				input		--		p
+			confirm:
+				转换和cancle一样
+			clear:
+				textarea
+				input
+					内容清除
+			delete:
+				remove
+			collectData:
+				p,pre,textarea,input,*[access_key]
+				[access] 属性获取
+			setData:
+				p,pre,textarea,input,*[access_key]
+				[access] 设置
+			getValue:
+				*[access_key]
+		
+		
+		
+	如果想要去掉默认的行为p,应加上notitem
+	
+	notitem 影响:
+		p 
+	-->
+	<!--
+	开发标准:
+		使用$.length代替$.size
+	
+	-->
+
+jquery api
+.  detach和remove实现基本相同的功能.但是detach只是移除视图,而remove还移除事件,数据等.因此detach是更好的选择.
+
+//===========warpAll
+jdom.wrapAll(fdom)  fdom可取<div></div>, $(...),Element.  如果fdom已经存在,就复制而不是移动.
+	$("p").wrapAll("<div></div>");  将所有的p元素先搜集起来,然后包裹.它包括对第一个元素的位置作了替换.
+	如 
+	<p>p1</p> 
+	<div>
+		<p>p4</p>
+	</div> 
+	<p>p3</p>
+	变成 <div><p>p1</p> <p>p4</p> <p>p3</p></div> <div></div>
+	
+	
+	更复杂的,比如<span>xx<span>yy</span><span>,可以将树理解为指针,span1,span2尽管具有父子关系,但是指针并不冲突.于是移动行程了
+	<span>xx</span>
+	<span>yy</span>
+	
+	复制已经存在元素例,	<span id="1"> <p>p1</p> <span>span inner</span> <p>p2</p> text</span>
+	<div>kk</div>
+	使用	$("div").wrapAll($("#1"));之后
+	变成<span id="1"> <p>p1</p> <span>span inner</span> <p>p2</p> text</span>
+	<span id="1"> <p>p1<div>kk</div></p> <span>span inner</span> <p>p2</p> text</span>
+	首先,span被复制了;其次,插入的位置是最内部.也就是,第一个非文本节点的内部.
+	
+	
+	
+	当然,如果jdom是空的,本身并不会产生任何dom,即使fdom是创建出来的.
+
+//==========wrap
+wrap和wrapAll的区别是,wrap会搜集,移动元素然后聚集;但是wrap不移动元素,只在原来元素的上部添加父元素.
+如
+	<p>p1</p>
+	inner
+	<p>p2</p>
+	
+	$("p").wrap("<div></div>"),则每个p的外围包括div
+	
+//=========wrapInner
+和wrap类似,但是包裹的不是外围,而是内部.即 <p>...</p> 包裹成 <p><b>...</b></p>
+
+//========unwrap
+解开元素,去除父元素.
+
+//========empty
+去除所有子元素
+	<p id="1">xx</p> 变成 <p id="1"></p>
+
+//========replaceWith
+接受content或者function作为参数.如果content已存在,就会复制.
+如
+	<p>p1</p>
+	hh
+	<p>p2</p>
+
+	$("p").replaceWith("<b>bold</b>") 得到 <b>bold</b>hh<b>bold</b>
+
+
+
+//===========map
+map接受一个函数,返回值被加入一个新的jquery类数组中.如
+	$(":checked").map(function(){return $(this).val();})
+	每一个的val都会被加入数组中. 最后得到的jquery类数组,此数组已经不具有dom属性.除非所有元素都是jdom,否则有可能出错.map不保真.
+
+
+
+
+//==========click(eventData,...)
+此时传递的eventData不会覆盖原来的e值,而增加.
+
+
+//===========用jQuery实现的实用函数
+deepClone
+	原来的clone(true) 只会复制那一级的事件,而子类事件不复制.此deepClone()会复制子类事件
+
+//========总结
+通过静态设置影响动态内容.

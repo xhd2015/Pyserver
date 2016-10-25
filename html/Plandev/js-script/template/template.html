@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.00"/>
+    <title>Itemshow Template Action</title>
+
+    <style type="text/css">
+		.itemshow[itemid="2"] textarea{
+			width : 100%;
+			height : 10em;
+		}
+		#pyexe textarea{
+			width : 100%;
+			height : 10em;
+		}
+    </style>
+    <script src='/jquery-3.1.0.js'></script>
+    <script src='/Plandev/js-script/itemshow_v2.js'></script>
+    <script src='/Plandev/js-script/itemshow_add_v1.js'></script>
+    <script>
+		$(document).ready(function(){
+			var $$=Itemshow;
+			var $3=ItemshowAdd;
+			var prmpt=$$.findId("prompt");
+			
+			var $s=function(p){prmpt.setStrOrData(p);}
+			var $a=function(p){prmpt.addStrOrData(p);}
+
+			onPyResp=function(e){
+				let resp=JSON.parse(e.data.resp);
+				$s(e.data.resp);
+			}
+
+
+			});
+    </script>
+</head>
+<body>
+	<div class="itemshow" id="pyexe" itemid="pyexe">
+		<textarea access_key="pycode" rows="5"></textarea>
+		<input access_key="action" value="ExecPython" hidden/>
+		<br/>
+		<button class="confirm" targetUri="/Plandev/js-script/template/ajax-services/action.html" onresp="onPyResp">Exec</button>
+		<button class="clear">Clear</button>
+	</div>
+	<!--test done -->
+	<hr/>
+	<div id="lsactions"><!--ls无参数,类似的有echo,help-->
+		<span class="itemshow itemshow_singleaction" itemid="lsactions" action="ls">
+			<button class="itemshow_post" targetUri="/Plandev/js-script/template/ajax-services/action.html" onresp="onPyResp">Ls Actions</button>
+		</span>
+		<span class="itemshow" itemid="help">
+			<input value="help" access_key="action" hidden/>
+			<button class="confirm" targetUri="/Plandev/js-script/template/ajax-services/action.html" onresp="onPyResp">Get Help</button>
+		</span> <br/>
+		<span class="itemshow" itemid="echo">
+			<input value="echo" access_key="action" hidden/>
+			<input access_key="v"/>
+			<button class="confirm" targetUri="/Plandev/js-script/template/ajax-services/action.html" onresp="onPyResp">Echo</button>
+		</span>
+	</div>
+	<!--test done -->
+	<hr/>
+	<div class="itemshow" itemid="prompt">
+		<span>Prompt : </span>
+		<span access_key="p"></span>
+	</div>
+	<hr/>
+	<!--test for createtable-->
+	<!--get data的方式应当改进.如果有多个相同的key,应当视为数组而非覆盖旧的值.并且按顺序收集-->
+		<div class="itemshow itemshow_singleaction" itemid="createtable" action="createtable">
+			<input access_key="table"/> <br/>
+			<div class="itemshow_same">
+				<span class="itemshow_same_firstcolumn"><input access_key="col"/> <input access_key="colarg"/><br/> </span> 
+				<span><input access_key="col"/> <input access_key="colarg"/> <br/></span>
+				<span><input access_key="col"/> <input access_key="colarg"/> <br/></span>
+				<button class="itemshow_same_add" >Add Column</button>
+				<button class="itemshow_same_remove">Remove Column</button>
+			</div>
+			<button class="itemshow_post" targetUri="/Plandev/js-script/template/ajax-services/action.html" onresp="onPyResp">Create Table</button> <!--post表明这是一个远程链接-->
+		</div>
+	<hr/>
+	<!--test for drop table -->
+	<div class="itemshow itemshow_singleaction" itemid="droptable" action="droptable">
+		<input access_key="table"/>
+		<button class="itemshow_post" targetUri="/Plandev/js-script/template/ajax-services/action.html" onresp="onPyResp">Drop Table</button>
+	</div>
+	<div class="itemshow itemshow_singleaction" itemid="searchtable" action="queryall">
+		<input access_key="table"/>
+		<button class="itemshow_post" targetUri="/Plandev/js-script/template/ajax-services/action.html" onresp="onPyResp">Query Table</button>
+	</div>
+	<hr/>
+	<!--test for change,show,delete data -->
+	<div class="items">
+		<div class="itemshow itemshow_multiaction" itemid="example">
+			<input access_key="table" value="test" hidden/>
+			<span access_key="content">Content</span> <br/>
+			<button class="itemshow_post" action="delete" targetUri="/Plandev/js-script/template/ajax-services/action.html" onresp="onDeleteResp">Delete</button>
+			<button class="change">Change</button>
+			<button class="cancle" >Cancle</button>
+			<button class="itemshow_post" action="insert" targetUri="/Plandev/js-script/template/ajax-services/action.html" onresp="onPyResp">Confirm</button>
+		</div>
+		
+	
+	</div>
+   <footer style="text-align:center;">
+		<p>Copyright &copy; 2016 Douglas Fulton Shaw</p>
+   </footer>
+
+</body>
+</html>

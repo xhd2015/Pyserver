@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0">
+    <title>Book Query System</title>
+
+    <style type="text/css">
+		
+		.showclick{
+			cursor: pointer;
+		}
+    </style>
+    <!--'http://code.jquery.com-->
+    <script src='/jquery-3.1.0.min.js'></script>
+    <script>
+		function addColumn(which)
+		{
+			var $parent=$(which).parent();
+			var $copied=$parent.clone();
+			$copied.children().first().val("");
+			$parent.after($copied);
+		}
+		function removeColumn(which)
+		{
+			$(which).parent().remove();
+		}
+		//搜索图书
+		function getSearchResult(argBtn)
+		{
+			var argHolder=$(argBtn).parent();
+			var type=argHolder.find(".input-type").val();
+			var text=argHolder.find(".input-text").val();
+			if(!text || !type || type=="---Select Input Type---")
+			{
+				//don't post that query , show the prompt
+				if(  ! $("#searchres").find(".prompt").is(".prompt") )
+					$("#searchres").prepend($("<li class='prompt'></li>"));
+				$("#searchres").find(".prompt").html("invalid input type or text.");
+			}else{
+				$("#searchres").find(".prompt").remove();
+				$(argHolder).get("/Book/ajax-service/search.get",{"type":type,"text":text},function(resp){
+						alert(resp);
+						//resp返回所有的信息
+				});
+			}
+		}
+		//定义图书显示的基本结构,即一个单独的项
+		//其中包括更新,删除按钮
+		function defineBookDetail(jsonStruct)
+		{
+			//bookname,authorname,isbn,publishyear,publisher,
+		}
+		//点击Add按钮的时候,将会提交图书信息,返回值是最终形成的图书信息
+		function getAddResult(argBtn)
+		{
+			//定义服务/Book/ajax-sercice/add.post
+			
+			//解析提交的参数
+			
+			//生成出错信息
+			
+			//开始ajax请求
+			
+			//验证请求成功或失败
+			
+			//给出结果信息(跳转到新的页面)
+		}
+		function getUpdateResult(argBtn)
+		{
+			//定义服务/Book/ajax-service/update.post , 其实和add是差不多的,但是为了模块化而单独编写
+		}
+		function getDeleteResult(argBtn)
+		{
+			//定义服务/Book/ajax-service/delete.get
+		}
+		
+		//----**文档加载完成开始交互**-----
+		//我们必须明白有一些项对于一本图书来说并不是必须的
+		$(document).ready(function(){
+			var $col=$(".adding-column");
+			var $last=$col.parent().children().last();
+			
+			//设置input类和其显示的对应,为全局对象
+			mapping_class={
+				"prompt"		:"---Select Input Type---",
+				"book-name"		:"Book Name",
+				"author-name"	:"Author Name"
+			};
+			//插件 : 设置一个输入框的参数是
+			$.fn.setRowArgs=function(inputText,defType){
+				var $select=$(this).children().first().val(inputText).next();
+				$select.children().filter("[selected=selected]").removeAttr("selected");
+				$select.find('.'+defType).attr("selected","selected");
+				return $(this);
+			};
+			
+			//插件 : 获取输入的值和类型
+			$.fn.getRowArgs=function(){
+					return {"type":$(this).find(".input-type").children().filter("[selected=selected]").attr("class"),
+							"text":$(this).find(".input-text").val()
+					};
+			};
+			
+			//增加几项默认的参数
+			$col.setRowArgs("","book-name");
+			$last.before($col.clone().setRowArgs("","author-name"));
+			$last.before($col.clone().setRowArgs("","prompt"));
+			$last.before($col.clone().setRowArgs("","prompt"));
+			
+			
+			
+		});
+    
+    </script>
+</head>
+<body>
+	<nav>
+	
+	</nav>
+	<header>
+			<label for="adding-book"></label>
+			<div id="adding-book" style="border:1px solid;">
+				<div class="adding-column">
+					<input type="text" class="input-text"/>
+					<select class="input-type">
+						<option class="prompt">---Select Input Type---</option>
+						<option class="book-name">Book Name</option>
+						<option class="author-name">Author Name</option>
+					</select> 
+					<img alt="-" class="showclick" src="/Book/images/icon-minus.png" style="font-size:2em; width:1%;height:1%;" onclick="removeColumn(this);"/>
+					<img alt="+" class="showclick" src="/Book/images/icon-plus.png" style="font-size:2em; width:1%;height:1%;" onclick="addColumn(this);"/>
+				</div>
+					
+				<input type="button" value="Add" onclick=""/>
+			</div>
+			<!--Search Box here-->
+			<div id="searching-book">
+				<input type="text" class="input-text"></input>
+				<select class="input-type">
+						<option class="prompt">---Select Input Type---</option>
+						<option class="book-name">Book Name</option>
+						<option class="author-name">Author Name</option>
+				</select>
+				<input type="button" onclick="getSearchResult(this);" value="Search"/>
+			</div>
+	</header>
+	
+	<hr/>
+	<!--Search content showed here-->
+	<section id="searchres">
+		<ul class="holder">
+		</ul>
+	</section>
+	<footer>
+		<p style="text-align:center;">&copy;copyright 2016 Fulton Shaw</p>
+	</footer>
+</body>
+</html>

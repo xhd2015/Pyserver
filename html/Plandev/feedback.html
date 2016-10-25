@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0">
+    <title>Feedback</title>
+
+    <style type="text/css">
+	.freeform textarea{
+		width:90%;
+		height: 5em;
+	}
+	footer{
+		text-align:center;
+		font-color: red;
+	}
+	footer p{
+		font-color: red;
+	}
+    </style>
+	<script src='/jquery-3.1.0.js'></script>
+	<script src='/Plandev/utils_fulton.js'></script>
+	<script src='/Plandev/freeform.js'></script>
+    <script>
+		//=====Itemshow START=====
+		//测试多个相同id的时候是否正常工作:正常
+		function getShowitem(id)
+		{
+			var $holder=$(".itemshow[itemshowid="+id+"]");
+			return $holder;
+		}
+
+		//按照数组传递  键名,方法名,初始值  [{element:,isformat:false,name:unknownkeyname,access:,init:},{}]
+		//默认没有位置,不显示 element无默认值
+		
+		function createShowitem(id,element,data)
+		{
+			var htext=String.format('<{0} class="itemshow" itemshowid="{1}" style="display:none">\n',element,id);
+			for(var i in data)
+			{
+				if(data[i].element)//如果元素为空就不添加标记
+				{
+					htext+=String.format('\t<{0} name="{1}" class="{2}" access="{3}">{4}</{0}>\n',
+						data[i].element,
+						data[i].name?data[i].name:"unknownkeyname",
+						data[i].isformat?"itemshowformat":"",
+						data[i].access?data[i].access:"html",
+						data[i].init?data[i].init:"");
+				}else if(data[i].init){//如果有初始的空文本,添加文本
+					htext+=String.format('\t{4}\n',data[i].init);
+				}
+			}
+			htext+=String.format('</{0}>\n',element);
+			return $(htext);
+		}
+		function setItemshow(id,data)
+		{
+			var $holder=getShowitem(id);
+			$holder.find(".itemshowformat").each(function(index,self){
+				
+				var $self=$(self);
+				var keyname=getattr($self,"name","unknownkeyname");
+				var method=getattr($self,"access","html");
+				$self[method](data[keyname]);
+			});
+			
+		}
+		function showItemshow(id)
+		{
+			getShowitem(id).show();
+		}
+		function hideItemshow(id)
+		{
+			getShowitem(id).hide();
+		}
+		//=====Itemshow END  =====
+		//=====Local Function START
+		function setItems(resp,$form)
+		{
+			//data :success-->id
+			var data=JSON.parse(resp);
+			
+			var $holder=$("#itemsholder");
+			if(data["status"]=="success")
+			{
+				if(!getShowitem(data["id"]).is(".itemshow"))
+				{
+					$holder.prepend(createShowitem(data["id"],"li",[{name:"content",isformat:true,element:"pre"}]).show());
+				}
+				var inputtext=getFreeformInput($form);
+				inputtext["content"]=quotePreData(inputtext["text"]);
+				delete inputtext["text"];
+				setItemshow(data["id"],inputtext);
+			}else{//失败时设置提示信息
+				setItemshow("prompt",data);//设置提示信息
+			}
+		}
+		//for freeform -- query all
+		function getAllFeedback(resp,$form)
+		{
+			var data=JSON.parse(resp);
+			//data["status"]="success";
+			var $holder=$("#itemsholder");
+			for(var i in data)//data=[{content:,id:,}]
+			{
+				if(!getShowitem(data[i]["id"]).is(".itemshow"))
+				{
+					$holder.prepend(createShowitem(data[i]["id"],"li",[{name:"content",isformat:true,element:"pre"}]).show());
+				}
+				data[i]["content"]=quotePreData(data[i]["content"]);
+				setItemshow(data[i]["id"],data[i]);
+			}
+		}
+		//=====Local Function END
+		$(document).ready(function(){
+			registerFreeform();
+				//查询所有的数据
+				$(".freeform[targeturi='/Plandev/ajax-services/getfeedback.html']").find("[name=submit]").click();
+		});
+	
+    </script>
+    
+</head>
+<body>
+	<!--需要编写的就是 onresp,targeturi,class="freeforminput",name; 这就是模式化-->
+	<a href="/Plandev/index.html">Index</a> <br/>
+	<div class="freeform" targeturi="/Plandev/ajax-services/postfeedback.html" onresp="setItems">
+		<textarea name="text" class="freeforminput" access="val"></textarea> <br/>
+		<button name="submit">Submit</button>
+		<button name="clear">Clear</button>
+	</div>
+	<div class="freeform" targeturi="/Plandev/ajax-services/getfeedback.html" onresp="getAllFeedback">
+		<input name="id" class="freeforminput" value="[all]" style="display:none"></input>
+		<input name="content" class="freeforminput" value="[all]" style="display:none"></input>
+		<button name="submit">Query All</button>
+	</div>
+	<!--我们很怀疑itemshow是否也会有一个模式化-->
+	<!--显示的数据来自于一个js字典,所需要知道的就是键名-->
+	<!--access默认是html-->
+	<!--name就是键名,默认是unknownkeyname-->
+	<!--itemindex,数据来源就是window.itemshowdata[相应的名称]-->
+	<!--默认的方法是on--window.itemshowdata--changed-->
+	<!--仅当itemshow真正对应了一个项的时候才显示-->
+	<!--access默认是html-->
+	<div class="itemshow" itemshowid="prompt">
+		<p name="status" class="itemshowformat"></p>
+	</div>
+	<hr/>
+	<ul id="itemsholder">
+		<li class="itemshow" itemshowid="example" style="display:none">
+			<p name="status" class="itemshowformat" access="html">ssssss</p>
+		</li>
+	</ul>
+	<footer>
+		<p>&copy;Copyright 2016 Fulton Shaw</p>
+	</footer>
+</body>
+</html>

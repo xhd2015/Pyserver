@@ -1,0 +1,83 @@
+趋于-->0 javascript 代码
+在开发中,toLowerCase等等很多动词都是不需要的.
+一个data()教你明白这一切
+
+最好是表现和行为不要分开(因为这些行为大多数是匿名的,短小的)
+		<input type="submit" value="lsactions" action="ls" onresp="__temp=function(e){alert('ok');$$.setP(e.data.resp);}"></input>
+		
+		(function(e){ $$.setP(e.data.resp);})
+
+更小的js文件:
+	xxx_support.js 意味着给网页增加某些特性,属于view
+	xxx_util.js		是通用的函数集合,不需要任何网页特性支持
+
+jquery函数
+
+1-3函数对没有disabled,有效控件(successful controls,w3c定义),具有name属性的控件进行值收集
+1.$("form").serialize()
+只对form有效,如果是div,即使有name属性也不会序列化
+也不会对input对象 input/textarea起作用
+形如
+	a=1&b=2&c=3&d=4&e=5
+
+2.$("form").submit(f)  和$(":submit")--->选择button,input元素中type=submit
+f如果return true,就会继续向上调用原来的提交处理.
+否则就停止.这是ajax处理的入口
+
+
+3.$("form").serializeArray()
+返回一个json array的类型.形如
+[ 
+  {name: 'firstname', value: 'Hello'}, 
+  {name: 'lastname', value: 'World'},
+  {name: 'alias'}, // 值为空
+]
+
+4.param
+对参数进行序列化,将=,&等进行urlencode
+该方法可以对单独的控件作用
+
+
+5.一些概念
+表单内部
+control name--name属性
+
+6.标准辅助函数
+data是serializeArray的输入
+function toJSONDict(data){
+			let thisdata={};
+			for(let i in data)
+			{
+				let name=data[i]["name"];
+				let value=data[i]["value"];
+				if(name in thisdata)
+				{
+					if(typeof thisdata[name]!== typeof [])
+					{
+						thisdata[name]=[ thisdata[name] ];
+						
+					}
+					thisdata[name].push(value);
+				}else{
+					thisdata[name]=value;
+				}
+			}
+			return thisdata;
+		}
+		
+下面的函数注册submit类型,要求action属性
+$("form").find(":submit").click(submitPerform);
+function submitPerform(e){
+				//alert(JSON.stringify($(this).serializeArray()));
+				
+				let jself=$(this);
+				let thisform=jself.parent("form");//找到元素form
+				let url=thisform.attr("action");
+				let subaction=jself.attr("action");//找到子类型action
+				let formdata=thisform.serializeArray();
+				formdata.push({"name":"action","value":subaction});
+				let data=toJSONDict(formdata); 
+				$.post(url,JSON.stringify(data),function(resp){
+					$l(resp);
+				});
+			}

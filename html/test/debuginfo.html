@@ -1,0 +1,32 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title></title>
+    <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0=
+">
+    <style type="text/css">
+        pre{
+           white-space: pre-wrap;
+        }
+        
+    </style>
+    
+</head>
+<body>
+    <pre>脚本启动：
+	命令行参数第一个指定initShares.py所在的目录，之后才能使用此脚本
+
+关于自定义动态页面文件:
+	定义函数模式如下:
+	def generate_html(s):
+		...<python coding="" here="">...
+		return [redirect_url,html_string,response_code]
+
+服务器规则：
+	依据s.path来定位资源
+	s.path为'/'直接永久重定向到'/index.html'
+	s.path为存在相应的${s.path}.py文件，执行这个py文件后返回 //replace .html or with .py
+	s.path不存在.py文件，如果是html或者htm文件，直接返回这个html；否则返回资源文件
+	如果找不到,即返回404 NOT FOUND
+</python></pre>
+
+</body></html>

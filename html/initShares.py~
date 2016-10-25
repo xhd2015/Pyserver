@@ -1,0 +1,14 @@
+#!/bin/python3
+__doc__='''此处用于存放一个在服务器初始化完毕以后第一个调用的脚本，你可以在其中初始化服务器变量，用于其他页面共享'''
+
+def init(**svr_args):
+	handler=svr_args.get('handler',None)
+	if handler:
+		#这些变量在后面用在s.的后面共享
+		handler.content_fmt='''<pre>{content}
+<i>[{date}]</i><a href='/delete.html?id={id}'>删除</a></pre>'''
+
+		#下面这些与系统相关
+		leftargs=svr_args['leftargs']
+		handler.dbs=handler.get(leftargs,0,None,'')
+		handler.html_dir=svr_args.get['htmlpath']

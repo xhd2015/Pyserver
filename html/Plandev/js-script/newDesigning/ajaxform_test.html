@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.00"/>
+    <title>Beautiful Ajaxform</title>
+
+    <style type="text/css">
+
+    </style>
+    <script src='/jquery-3.1.0.js'></script>
+     <script src="/Plandev/js-script/newDesigning/utils.js"></script>
+    <script src="/Plandev/js-script/newDesigning/ajaxform_support.js"></script>
+    <script src="/Plandev/js-script/newDesigning/hdata_support.js"></script>
+    <script src="/Plandev/js-script/newDesigning/prompt_support.js"></script>
+    <script src="/Plandev/js-script/newDesigning/transfer_support.js"></script>
+    <script>
+		Utils.exports();
+    </script>
+</head>
+<body>
+	<!--使用urlunquote即可数据化-->
+	<form action="/Plandev/ajax-services/sql_action.html" target="_self">
+		<textarea name="pycode" ></textarea> <br/>
+		<input type="submit" value="exec python" action="execpython" 
+		getdata="$A.standardActionData" onresp="(__temp=function(e){ $P.setP(e.data.resp);
+			$T.getNewshow('#items',{age:$.now(),name:e.data.resp}).appendTo('#items');
+		})"/><!--降级data-->
+		<input type"reset" value="clear"/>
+		 <br/>
+		<input type="submit" value="lsactions" action="ls" onresp="__temp"></input>
+		<input type="submit" value="help" action="help"/>
+	</form>
+	<form action="/Plandev/ajax-services/sql_action.html">
+		<input name="table"></input>
+		<input type="submit" value="Query All" action="queryAll" getdata="$A.standardActionData"
+		onresp="(function(e){
+			let data=JSON.parse(e.data.resp);
+			let tables=data.data;
+			for(let i in tables)
+			{
+				$T.getNewshow('#tables',{table:tables[i][1]}).appendTo('#tables');
+			}
+		})"
+		/>
+	</form>
+	<hr/>
+	<div id="prompt">
+		<p name="p"></p>
+	</div>
+	<hr/>
+	<div id="tables">
+		<form example_show>
+			<p name="table"></p>
+		</form>
+		<form example_change>
+		
+		</form>
+	</div>
+	<div id="items">
+		<form example_show="" action="/Plandev/ajax-services/sql_action.html" style="border:1px solid;display:none;">
+			<p name="age">56</p>
+			<p name="name">Dl</p> <br/>
+			<input type="submit" action="delete" value="delete" 
+			getdata="$A.standardActionData"
+			onresp="(function(e){
+				e.data.jform.detach();
+			})"></input>
+			<input type="button" onclick="$T.change($(this).parent('form'));"
+			 value="change"></input>
+		</form>
+		<form example_change="" action="/Plandev/ajax-services/sql_action.html" style="border:1px solid;display:none;">
+			<input name="age"></input>
+			<input name="name"></input> <br/>
+			<input type="button" value="cancle" onclick="$T.cancle($(this).parent('form'));"></input>
+			<input type="button" hidden value="confirm" onclick="$T.confirm($(this).parent('form'));"></input>
+			<input type="submit" action="update" value="confirm"
+			getdata="$A.standardActionData"
+			onresp="(function(e){
+				$U.l(e.data.resp);
+				e.data.jself.prev().click();
+			})"></input>
+		</form>
+	</div>
+
+	
+   <footer style="text-align:center;">
+		<p>Copyright &copy; 2016 Douglas Fulton Shaw</p>
+   </footer>
+
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.00"/>
+    <title>Itemshow Template CURD</title>
+
+    <style type="text/css">
+		.itemshow[itemid="2"] textarea{
+			width : 100%;
+			height : 10em;
+		}
+    </style>
+    <script src='/jquery-3.1.0.js'></script>
+    <script src='/Plandev/js-script/itemshow_v2.js'></script>
+    <script src='/Plandev/js-script/itemshow_add_v1.js'></script>
+    <script>
+
+		$(document).ready(function(){
+			var $$=Itemshow;
+			var $3=ItemshowAdd;
+			var prmpt=$$.findId("prompt");
+			
+			var $s=function(p){prmpt.setStrOrData(p);}
+			var $a=function(p){prmpt.addStrOrData(p);}
+			var lastid=0;
+			
+			$3.findId("example").reg("delete",$3.defaultConfirm);
+			onSearchResp=function(e){
+				$s("Resp received");
+				let resp=JSON.parse(e.data.resp);
+				if(resp.word=="[all]")
+				{
+					$a("you've searched [all]");
+				}else{
+					$a("querying is "+resp.word);
+				}
+			}
+			onAddResp=function(e){
+				$s("Add Resp");
+				let jbase=$$.findId("example").getJDom();
+				let jdom=$$.clickClone(jbase).show().attr("itemid",lastid);
+				/*
+					这里的clone只是复制这一级别的事件处理器,其子类的事件处理器并没有复制.
+					但是复制事件存在一个问题,那就是事件的参数e.data.item,e.data.itemthis也被复制了.从而使得这不是真正的事件函数
+					
+					改进的clone函数通过访问已知的存在的键的函数,这些不适用this处理对象.
+				*/
+				let resp=JSON.parse(e.data.resp);
+				lastid++;
+				jbase.after(jdom);
+				let itemAdded=(new $$(jdom));
+				itemAdded.data(resp);
+			}
+			onDeleteResp=function(e){
+				$s(e.data.item.getJDom().attr("itemid")+" is deleted");
+				$$.defaultDelete(e);
+			}
+			onConfirmResp=function(e){
+				$s(e.data.item.getJDom().attr("itemid")+" is updated");
+				$$.defaultConfirm(e);
+			}
+			$$.findId("add").reg("clear",function(e){
+				let prev=e.data.item.data()["type"];
+				$$.defaultClear(e);
+				e.data.item.data({"type":prev});
+			});
+			
+			});
+    </script>
+</head>
+<body>
+	<div id="add">
+		<div class="itemshow" itemid="add">
+			<input access_key="content" ></input>
+			<select access_key="type">
+				<option value="prompt">--Select Type--</option>
+				<option value="op1">Option1</option>
+				<option value="op2">Option2</option>
+			</select> 
+			<br/>
+			<button class="confirm" targetUri="/echo.html" onresp="onAddResp">Add</button>
+			<button class="clear">Clear</button>
+		</div>
+	</div>
+	<hr/>
+	<div id="search">
+		<span class="itemshow" itemid="search">
+			<input access_key="word"></input>
+			<button class="confirm" targetUri="/echo.html" onresp="onSearchResp">Search</button>
+		</span>
+		<span class="itemshow" itemid="searchall">
+			<button class="confirm" targetUri="/echo.html" onresp="onSearchResp" access_key="word" access="val" value="[all]">Search All</button>
+		</span>
+	</div>
+	<hr/>
+	<div class="itemshow" itemid="prompt">
+		<span>Prompt : </span>
+		<span access_key="p"></span>
+	</div>
+	<hr/>
+	
+	<div id="items">
+		<div class="itemshow" itemid="example">
+			<p access_key="content" transto="textarea">哦,你好!</p> <!--transto 定义希望转化的类型-->
+			<p access_key="type" transto="select"> <!--这里示范了一种可能,就是transto指向select等非标准元素的时候,应当怎么设置;
+				较好的方法是使用转换函数,该函数传入一个jdom参数,返回其类型.
+				-->
+				greeting
+				<option>--Select Type--</option>
+				<option>X</option>
+			</p>
+		<button class="delete" targetUri="/echo.html" onresp="onDeleteResp">Delete</button> <!--delete想要借用confirm的操作-->
+		<button class="change">Change</button>
+		<button class="cancle" style="display:none">Cancle</button>
+		<button class="confirm" targetUri="/echo.html" onresp="onConfirmResp" style="display:none">Confirm</button>
+	   </div>
+	</div>
+	
+   <footer style="text-align:center;">
+		<p>Copyright &copy; 2016 Douglas Fulton Shaw</p>
+   </footer>
+
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<!--设置缓存 -->
+<html><!-- manifest="/Plandev/js-script/newDesigning/js.manifest"-->
+<head>
+	<meta charset='utf-8'/>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0">
+    <title>Plan Your Plans</title>
+
+    <style type="text/css">
+    </style>
+    <script src='/jquery-3.1.0.js'></script>
+    <script src="/Plandev/js-script/newDesigning/utils.js"></script>
+    <script src="/Plandev/js-script/newDesigning/ajaxform_support.js"></script>
+    <script src="/Plandev/js-script/newDesigning/hdata_support.js"></script>
+    <script src="/Plandev/js-script/newDesigning/prompt_support.js"></script>
+    <script src="/Plandev/js-script/newDesigning/transfer_support.js"></script>
+     <script src="/Plandev/js-script/newDesigning/dynamiccolumn_support.js"></script>
+      <script src="/Plandev/js-script/newDesigning/vargroup_support.js"></script>
+    <script>
+			Utils.exports();
+			/*
+			*这个是添加,已经改进过
+			*集成到transfer_support中
+			*/
+			function addItem(id){
+				let jclone=$("#items").find("[example_show]").
+					clone(true).show().
+					removeAttr("example_show");
+				jclone.attr("itemid",id?id:-1);
+				$A.registerAjaxForm(jclone);
+				$("#items").find("[example_change]").after(jclone);
+			}
+			$(document).ready(function(){
+			
+			});
+    </script>
+    
+</head>
+<body>
+	<p>Plan your plans.And slave your slaves.</p>
+
+	<!--Search-->
+	<form id="query" action="/Plandev/ajax-services/newplan_action.html" style="display:inline;">
+		<input name="arg"/> 
+		<lable for="limit">Limit</lable>
+			<input name="limit" maxlength="5"/>
+		<!-- arg = word --> <br/>
+		<input type="submit"
+			action="query"
+			value="Search"
+			getdata="$A.actionHdataNull"
+			onresp="(function(e){
+			
+		})"/>
+		<!-- arg = limit , default=50-->
+		<input type="submit"
+			action="queryall"
+			value="Search All"
+			getdata="$A.actionHdataNull"
+			onresp="(function(e){
+			
+		})"/>
+	</form>
+
+	<!--Add--><br/>	
+	<form action="/Plandev/ajax-services/newplan_action.html" style="display:inline;">
+		<input type="submit" value="Add"
+		action="addplan"
+		getdata="$A.actionHdata"
+		onresp="(function(e){
+		let data=JSON.parse(e.data.resp);
+			if(data.status=='success')
+			{
+				addItem(data.data);
+			}else{
+				console.log('failed add id at first');
+				console.log(e.data.resp);
+			}
+		
+		
+		})"/>
+	</form>
+	
+	<hr/>
+	<!--Prompt-->
+	<div id="prompt">
+		<pre name="p"></pre>
+	</div>
+	<hr/>
+	<!--List-->
+	<div id="items">
+		<form example_show itemid="example_show" style="display:none;">
+			<p>*************</p>
+			<p name="title">Title</p>
+			<p name="description">Description</p>
+			<p name="universla">Universal</p>
+			<div>
+				<span firstcolumn>
+					<span name="subplan">Subplan 1</span>
+					<span name="substatus"> Not Completed</span>
+					<span name="subremark">Remark</span>
+					 <br/>
+				</span>
+				<span>
+					<span name="subplan">Subplan 2</span>
+					<span name="substatus"> Not Completed</span>
+					<span name="subremark">Remark</span>
+					<br/>
+				</span>
+				<button on1click="$D.a(this);" style="display:none;">+</button>
+				<button onclick="$D.r(this);" style="display:none;">-</button>
+			</div>
+
+			<span name="status">All status</span>
+			<span name="remark">All remark</span>
+			<br/>
+			<input type="submit" action="delete" value="delete" 
+			getdata="$A.actionHdata"
+			onresp="(function(e){
+				e.data.jform.detach();
+			})"></input>
+			<input type="button" onclick="$T.change($(this).parent('form'));"
+			 value="change"></input>
+		</form>
+		<form example_change itemid="example_change" style="display:none;">
+			<p>*************</p>
+			<input name="title"></input> <br/>
+			<textarea name="description"></textarea> <br/>
+			<input name="universla"></input><br/>
+			<div>
+				<span firstcolumn>
+					<textarea name="subplan"></textarea><br/>
+					<input name="substatus"> </input>
+					<input name="subremark"></input>
+					<br/>
+				</span>
+				<span>
+					<textarea name="subplan"></textarea><br/>
+					<input name="substatus"> </input>
+					<input name="subremark"></input>
+					<br/>
+				</span>
+				<button onclick="$D.a(this);" >+</button>
+				<button onclick="$D.r(this);" >-</button>
+			</div>
+			<input name="status">All status</input>
+			<textarea name="remark">All remark</textarea>
+						<br/>	
+			<input type="button" value="cancle" onclick="$T.cancle($(this).parent('form'));"></input>
+			<input type="button" hidden value="confirm" onclick="$T.confirm($(this).parent('form'));"></input>
+			<input type="submit" action="update" value="confirm"
+			getdata="$A.actionHdata"
+			onresp="(function(e){
+				$U.l(e.data.resp);
+				e.data.jself.prev().click();
+			})"></input>
+		</form>
+		
+	</div>
+	<!--footer-->
+	  <footer style="text-align:center;">
+		<p>Copyright &copy; 2016 Douglas Fulton Shaw</p>
+   </footer>
+
+</body>
+</html>

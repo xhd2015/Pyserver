@@ -1,0 +1,67 @@
+create table Book (ISBN  char(13) not null, Title text not null, AuthorID int not null ,
+ Publisher text, Publish date, Price double(6,2),CONSTRAINT ISBNAuthorID PRIMARY KEY (ISBN,AuthorID),foreign key(AuthorID) REFERENCES Author(AuthorID));
+create table Author (AuthorID int primary key not null, Name text not null, Age int, Country text);
+
+使用MySQL建立一个“图书数据库“BookDB,包含两张表:
+– Book {ISBN (PK) not null, Title not null , AuthorID (FK) not null, Publisher, Publish, Price} //如果一本图书具有多个作者,就应当填写多行
+– Author {AuthorID (PK) not null, Name not null, Age, Country}
+ 手工输入足够多的若干测试数据;
+ 功能需求:
+– 输入作者名字,查询该作者所著的全部图书的题目;
+– 当用户点击某本图书的题目时,展示图书详细信息和作者详细信息;//select * from $tables
+– 当用户点击“删除”按钮时,将对应行的图书从数据表中删除;//delete from $table
+– (选做) 用户可新增一本图书,若该书作者不在库中,还需增加新作者; //意味着只有图书名和图书 作者是必须的信息,但是由于主键的关系,ISBN也不能留空
+– (选做) 用户可更新一本图书的作者、出版社、出版日期、价格。//update $table set a=$a,b=$b where $cond
+性能需求:
+– 页面的美观性
+
+MVC模型:在struts2中Control一定需要返回某个view,然而我认为这不是必须的.我所使用的MVC模型是,存在两种C模型,一个是返回固定页面的C,一个是返回数据的C,它们都需要与M进行信息交换.
+	M-->数据库连接  1.作者姓名-->图书标题
+				  2.图书标题-->详细信息
+				  3.删除 使用ajax
+	页面:
+		bookhomepage:(参照index.html的设计)
+			增加图书信息--跳转到新的页面显示统计结果(updatebook返回updatedSuccess从服务查询结果)
+			搜索
+			--------------------
+			搜索结果{删除,更新}
+		关于搜索
+			不带参数-->:搜索框 [选择搜索项目:作者名,标题名,出版年份,国家]//可以新增搜索框,搜索按钮放置在页面底部
+			带有参数-->:显示
+		bookdetails?查询字符串
+			对于每个连接,使用
+		ajax-service单独设置成一个单独的服务目录,设置成提交数据,获取输出
+		
+		
+//====数据关系
+图书表和作者表不是关联的
+		
+//====java的json解析
+使用json-lib(依赖jar包:commons-beanutils.jar  commons-httpclient.jar  commons-lang.jar  ezmorph-1.0.6.jar  json-lib-2.4-jdk15.jar  morph-1.1.1.jar)
+JSONObject.fromObject()
+
+
+
+//=====js的json解析
+json的数据类型是text/plain,使用JSON.parse来解析
+
+//====java的数据库操作
+
+execute()根据操作类型返回真假,Select返回true,其他返回false;
+查询语句调用getResultSet,更改语句调用getAffectedRows
+
+
+//=======新浪云的mysql
+服务器: mcroechsltjj.rds.sae.sina.com.cn 
+端口: 10296
+用户名:root
+密码:$local
+数据库:bookdb
+连接命令:				"jdbc:mysql://mcroechsltjj.rds.sae.sina.com.cn:10296?"+
+				"useUnicode=true&characterEncoding=utf8&"+
+				"useSSL=true&user=root&password=123123"
+
+//=========新浪云的vpn连接
+Access Key: n1oyn1jwx5
+Secret Key: l45400x0zxxi0i35h414zxikm5hyl1h1l0zkxw31
+			

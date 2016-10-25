@@ -1,0 +1,2 @@
+Book.json负责定义图书的详细信息所需要填写的表项,query,add,update都需要用到这个表项
+Delete.isbn 负责一次删除以后填写的数据结构

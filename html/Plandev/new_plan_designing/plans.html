@@ -22,16 +22,12 @@
 			*这个是添加,已经改进过
 			*集成到transfer_support中
 			*/
-			function addItem(id){
-				let jclone=$("#items").find("[example_show]").
-					clone(true).show().
-					removeAttr("example_show");
-				jclone.attr("itemid",id?id:-1);
-				$A.registerAjaxForm(jclone);
-				$("#items").find("[example_change]").after(jclone);
+			function searchAll()
+			{
+				$("#query").find(":submit").click();
 			}
 			$(document).ready(function(){
-			
+				searchAll();
 			});
     </script>
     
@@ -41,25 +37,67 @@
 
 	<!--Search-->
 	<form id="query" action="/Plandev/ajax-services/newplan_action.html" style="display:inline;">
-		<input name="arg"/> 
-		<lable for="limit">Limit</lable>
-			<input name="limit" maxlength="5"/>
+		<label for="word">Search</label> <br/>
+		<input name="word"/> 
+		<input type="checkbox"  name="type" value="title"/>Title
+		<input type="checkbox" name="type" value="description"/>Description
+		<input type="checkbox" name="type" value="universal"/>Universal
+		<input type="checkbox" name="type" value="plan"/>Plan
+		<input type="checkbox" name="typeall" value="all"  checked/>All
+		<input type="checkbox" name="visiable" value="shown" checked/>Visiable
+			<br/>
+		<lable for="limit">Limit</lable> <br/>
+			<input name="limit" style="width:50px;"/>
 		<!-- arg = word --> <br/>
+		
+		<!-- 对checkbox进行检查 -->
 		<input type="submit"
 			action="query"
 			value="Search"
-			getdata="$A.actionHdataNull"
+			getdata="(function(e){
+				let data=$A.actionHdataNull(e);
+				if(data.data.type && typeof data.data.type!==typeof [])
+				{
+					data.data.type=[ data.data.type ];
+				}
+				$P.addP(data);
+				return data;
+			})"
 			onresp="(function(e){
+			let data=JSON.parse(e.data.resp);
+			if(data.status=='success')
+			{
+				$P.setP(data.data);
+				//将data.data.plans从替换成多维的 planid subplan substatus subremark
+				let subkeys=['planid','subplan','substatus','subremark'];
+				let inputkeys=['id','content','status','remark']
+	
+				for(let i in data.data)
+				{
+					let thisdata=data.data[i];
+					for(let j in subkeys)
+					{
+						thisdata[subkeys[j]]=[];
+					}
+					
+					for(let k in thisdata.plans)
+					{
+						let thisplan=thisdata.plans[k];
+						for(let j in subkeys)
+						{
+							thisdata[subkeys[j]].push(thisplan[inputkeys[j]]);
+						}
+					}
+					$P.l(thisdata);
+					let jshow=$T.add(thisdata);
+					jshow.attr('itemid',thisdata.id);
+				}
+			}else{
+				$P.setP(data.status+' , reason : '+data.reason);
+			}
 			
 		})"/>
-		<!-- arg = limit , default=50-->
-		<input type="submit"
-			action="queryall"
-			value="Search All"
-			getdata="$A.actionHdataNull"
-			onresp="(function(e){
-			
-		})"/>
+		<input type="reset" value="Clear"/>
 	</form>
 
 	<!--Add--><br/>	
@@ -71,10 +109,12 @@
 		let data=JSON.parse(e.data.resp);
 			if(data.status=='success')
 			{
-				addItem(data.data);
+				let jadd=$T.add(data.data);
+				jadd.attr('itemid',data.data);
+				
 			}else{
-				console.log('failed add id at first');
-				console.log(e.data.resp);
+				$P.setP('failed add id at first');
+				$P.addP(e.data.resp);
 			}
 		
 		
@@ -84,75 +124,112 @@
 	<hr/>
 	<!--Prompt-->
 	<div id="prompt">
-		<pre name="p"></pre>
+		<pre name="p" wrap="virtual"></pre>
 	</div>
 	<hr/>
-	<!--List-->
+	<!--Items List-->
 	<div id="items">
-		<form example_show itemid="example_show" style="display:none;">
+		<form itemid="example_show" action="/Plandev/ajax-services/newplan_action.html" style="display:none;">
 			<p>*************</p>
-			<p name="title">Title</p>
-			<p name="description">Description</p>
-			<p name="universla">Universal</p>
-			<div>
-				<span firstcolumn>
-					<span name="subplan">Subplan 1</span>
+			<span>Title :</span> <span name="title">Title</span> <br/>
+			<span>Description :</span><span name="description">Description</span> <br/>
+			<span>Universal :</span><span name="universal">Universal</span> <br/>
+			<ul>
+				<li firstcolumn>
+					<span  name="planid"  style="display:none;"/>newplanid</span>
+					<span name="subplan">Subplan 1</span> 
+					<br/>
 					<span name="substatus"> Not Completed</span>
 					<span name="subremark">Remark</span>
 					 <br/>
-				</span>
-				<span>
-					<span name="subplan">Subplan 2</span>
+				</li>
+				<li>
+					<span  name="planid"  style="display:none;"/>newplanid</span>
+					<span name="subplan">Subplan 2</span> <br/>
 					<span name="substatus"> Not Completed</span>
 					<span name="subremark">Remark</span>
 					<br/>
-				</span>
+				</li>
+				<!-- use hidden button to get Vargroup_support -->
 				<button on1click="$D.a(this);" style="display:none;">+</button>
 				<button onclick="$D.r(this);" style="display:none;">-</button>
-			</div>
+			</ul>
 
-			<span name="status">All status</span>
-			<span name="remark">All remark</span>
+			<span>Status </span><span name="status">All status</span> <br/>
+			<span>Remark </span><span name="remark">All remark</span>
+			<span name="weight" style="display:none;"></span> 
+			<span name="visiable" style="display:none;"></span>
 			<br/>
 			<input type="submit" action="delete" value="delete" 
-			getdata="$A.actionHdata"
+			getdata="(function(e){
+			return {'action':e.data.action,'data':e.data.jform.attr('itemid')};
+			})"
 			onresp="(function(e){
 				e.data.jform.detach();
 			})"></input>
-			<input type="button" onclick="$T.change($(this).parent('form'));"
+			<input type="button" 
+			onclick="$T.change(this);let jform=$(this).parent('form');jform.next().attr('itemid',jform.attr('itemid'));"
 			 value="change"></input>
 		</form>
-		<form example_change itemid="example_change" style="display:none;">
+		<form itemid="example_change" action="/Plandev/ajax-services/newplan_action.html" style="display:none;">
 			<p>*************</p>
-			<input name="title"></input> <br/>
-			<textarea name="description"></textarea> <br/>
-			<input name="universla"></input><br/>
-			<div>
-				<span firstcolumn>
-					<textarea name="subplan"></textarea><br/>
-					<input name="substatus"> </input>
-					<input name="subremark"></input>
+			<span>Title : </span><input name="title"></input> <br/>
+			<span>Description : </span><textarea name="description"></textarea> <br/>
+			<span>Universal : </span><input name="universal"></input><br/>
+			<ul>
+				<li firstcolumn>
+					<span  name="planid"  style="display:none;"/>newplanid</span>
+					<textarea name="subplan"></textarea>	<br/>
+					<span>Status : </span><input name="substatus" size="5"> </input>
+					<span>Remark : </span><input name="subremark"></input>
 					<br/>
-				</span>
-				<span>
-					<textarea name="subplan"></textarea><br/>
-					<input name="substatus"> </input>
-					<input name="subremark"></input>
+				</li>
+				<li>
+					<span  name="planid"  style="display:none;"/>newplanid</span>
+					<textarea name="subplan"></textarea>	<br/>
+					<span>Status : </span><input name="substatus" size="5"> </input>
+					<span>Remark : </span><input name="subremark"></input>
 					<br/>
-				</span>
+				</li>
 				<button onclick="$D.a(this);" >+</button>
 				<button onclick="$D.r(this);" >-</button>
-			</div>
-			<input name="status">All status</input>
-			<textarea name="remark">All remark</textarea>
+			</ul>
+			<span>Status : </span><input name="status" value="All status" size="10"></input> <br/>
+			<span>Remark : </span><textarea name="remark" >All remark</textarea>
 						<br/>	
+			<span>Weight : </span><input name="weight" value="weight" size="4"/> <br/>
+			<input type="radio" name="visiable" value="shown"/>show
+			<input type="radio" name="visiable" value="hidden"/>hide 
+			<br/>
 			<input type="button" value="cancle" onclick="$T.cancle($(this).parent('form'));"></input>
-			<input type="button" hidden value="confirm" onclick="$T.confirm($(this).parent('form'));"></input>
-			<input type="submit" action="update" value="confirm"
-			getdata="$A.actionHdata"
+			<input type="button" hidden value="confirm" onclick="$T.confirm(this);"></input>
+			<input type="submit" value="confirm" 
+			action="update" 
+			getdata="(function(e){
+			
+			data=$A.actionHdataNull(e);
+			data.data.id=e.data.jform.attr('itemid');
+			let arrkey=['planid','subplan','substatus','subremark'];
+			for(let i in arrkey)
+			{
+				let key=arrkey[i];
+				if(key in data.data && (!$.isArray(data.data[key])))
+				{
+					data.data[key]=[ data.data[key] ];
+				}
+			}
+			$P.setP(data);
+			return data;
+			})"
 			onresp="(function(e){
-				$U.l(e.data.resp);
-				e.data.jself.prev().click();
+				let data=JSON.parse(e.data.resp);
+				if(data.status=='failed')
+				{
+					$P.setP(data);
+				}else{
+					e.data.jself.prev().click();
+				}
+				
 			})"></input>
 		</form>
 		

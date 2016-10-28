@@ -260,7 +260,7 @@ class DBOperation:
 		elif slen > 1:
 			self.cursor.executemany(sqlStatement,sqlData)
 		return self.cursor.fetchall()
-	
+	#这里必须传递一个二级数组,返回的数据也是二级数组
 	def executeQuery(self,sqlStatement,sqlData=[]):
 		return self.execute(sqlStatement,sqlData)
 	def executeUpdate(self,sqlStatement,sqlData=[]):

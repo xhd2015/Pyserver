@@ -62,6 +62,7 @@ $$.defaultGetData=function(e){
 }
 /**
  * 将数据化成action:,data:的形式
+ * @depreciated
  */
 $$.standardActionData=function(e){
 	let data=$$.defaultGetData(e);
@@ -127,7 +128,7 @@ $$.registerAjaxForm=function(jform){
 				try{
 					f=eval(attr);
 				}catch(e){
-					console.log("exception eval "+key);
+					console.log("exception eval "+key+" . "+e);
 				}
 			}
 			if(f &&( typeof f===typeof $))

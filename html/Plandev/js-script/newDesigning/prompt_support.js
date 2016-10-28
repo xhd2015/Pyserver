@@ -38,5 +38,9 @@ $$.addP=function(p,filter){
 		{"p": $H.data(prompter)["p"]+"\n"+p}
 	);
 }
+$$.l=function(p){
+	p=Utils.repr(p);
+	console.log(p);
+}
 	
 }(Prompt_support));

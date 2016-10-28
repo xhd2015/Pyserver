@@ -31,14 +31,24 @@ $$.data=function(jdom,setdata){
  * 如果值为空,不获取
  * 如果有多个相同的键,则添加成数组
  * 
+ * issue: 对checkbox,radio的选项进行改进 2016-10-26 15:19:16
  */
 $$.getAccessData=function(jdom,nullable)
 {
 	let data={};
 	jdom.find("[name]").not("[disabled]").each(function(){
 		let jself=$(this);
+		//如果是多选按钮,单选按钮,只选择选中的
+		if(jself.is(":checkbox") || jself.is(":radio"))
+			{
+				if(!jself.is(":checked"))
+					{
+						return;
+					}
+			}
 		let key=jself.attr("name");
 		//仅当不为空的时候加入这个值
+		//当为checkbox的时候只选择checked
 		let srcVal=jself[$$.getAccess(jself)]();
 //		alert("srcval:"+srcVal);
 		if(nullable || srcVal)
@@ -61,21 +71,37 @@ $$.getAccessData=function(jdom,nullable)
  * 设置含有name的data.如果某一个键是数组,就会将其逐个赋值
  * 
  * 一般情况下,会认为组名是足够数据存放的;但是有的时候组数不定,可能需要使用更好的自动适应的列植. 多了就删除,少了就新建. 与行为有关
+ * 
+ * issue:
+ * 		radio -- 数据设置时不再是普通的getAccess,而是checked属性
+ * 		checkbox -- 等需要用到再说吧
  */
 $$.setAccessData=function(jdom,data)
 {
-//	alert(typeof jdoms);
 	jdom.find("[name]").not("[disabled]").each(function(){
 		var jself=$(this);
 		var key=jself.attr("name");
 		if(key in data)
 		{
-			if(typeof data[key]===typeof [])
+			let realdata;
+			if($.isArray(data[key]) && data[key].length > 0)
 			{
-				jself[$$.getAccess(jself)](data[key][0]);
+				realdata=data[key][0];
 				data[key].shift();
 			}else{
-				jself[$$.getAccess(jself)](data[key]);
+				realdata=data[key];
+			}
+			//如果是radio button或者checkbox,使用checked选项
+			if(jself.is(":radio"))
+			{
+				if(realdata===jself.val())
+				{
+					jself.attr("checked","");
+				}
+			}else{
+//				alert("key :"+key+" realdata:"+realdata+" before :"+jself[$$.getAccess(jself)]());
+				jself[$$.getAccess(jself)](realdata);
+//				alert("after :"+jself[$$.getAccess(jself)]());
 			}
 			
 		}

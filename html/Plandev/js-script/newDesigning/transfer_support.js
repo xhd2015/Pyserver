@@ -24,6 +24,8 @@
  * type=toshow
  * type=tochange
  * 
+ * #items的直接子项必须是form形式的
+ * 
  * 
  * transfer转换只对:visible,not :disabled
  */
@@ -36,8 +38,8 @@ Transfer_support={};
  * 
  * 重新注册新的submit事件
  */
-$$.getChangeType=function(jdom){
-	jcopied=jdom.prev("[example_change]").first().clone().removeAttr("example_change").attr("item_change","");
+$$.getChangeType=function(jholder){
+	let jcopied=jholder.find("[itemid=example_change]").clone();
 	$A.registerAjaxForm(jcopied);
 	return jcopied;
 }
@@ -45,13 +47,9 @@ $$.getChangeType=function(jdom){
  *获取一个显示项 
  */
 $$.getNewshow=function(jholder,data){
-	if(typeof jholder===typeof "")
-	{
-		jholder=$(jholder);
-	}
-	jcopied=jholder.find("form[example_show]").first().clone().removeAttr("example_show").attr("item_show","").show();
+	let jcopied=jholder.find("form[itemid=example_show]").clone().show();
 	$A.registerAjaxForm(jcopied);
-	$H.data(jcopied,data);
+	$V.feed(jcopied,data);
 	return jcopied;
 }
 /**
@@ -62,12 +60,16 @@ $$.getShowType=function(jdom){
 }
 /**
  * 将数据转移,然后显示
+ * 
+ * 必须是form
  */
-$$.change=function(jdom_show){
-	let data=$H.data(jdom_show);
-	let jdom_change=$$.getChangeType(jdom_show);
+$$.change=function(btn){
+	let jform=$(btn).parent('form');
+	let jholder=jform.parent();
+	let data=$H.data(jform);
+	let jdom_change=$$.getChangeType(jholder);
 	$V.feed(jdom_change,data);
-	jdom_show.after(jdom_change.show()).hide();
+	jform.after(jdom_change.show()).hide();
 }
 /**
  */
@@ -78,7 +80,8 @@ $$.cancle=function(jdom_change){
 /**
  * 这个confirm会以feed的形式进行
  */
-$$.confirm=function(jdom_change){
+$$.confirm=function(btn){
+	let jdom_change=$(btn).parent("form");
 	let data=$H.data(jdom_change);
 	let jdom_show=$T.getShowType(jdom_change);
 	
@@ -90,10 +93,17 @@ $$.confirm=function(jdom_change){
 $$.delete=function(jdom_show){
 	jdom_show.detach();
 }
-
-$$.add=function(){
-	
-	
+/**
+ * 默认使用#items作为容器
+ */
+$$.add=function(data,jholder){
+	if(!jholder)
+	{
+		jholder=$("#items");
+	}
+	let jshow=$$.getNewshow(jholder,data);
+	jholder.append(jshow);
+	return jshow;
 }
 
 

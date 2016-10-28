@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="SQLite%20Query%20Language:%20Core%20Functions_files/sqlite.css" rel="stylesheet">
+<title>SQLite Query Language: Core Functions</title>
+</head>
+<body>
+<div class="nosearch">
+<a href="http://sqlite.org/index.html">
+<img class="logo" src="SQLite%20Query%20Language:%20Core%20Functions_files/sqlite370_banner.gif" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="http://sqlite.org/index.html">Home</a>
+</li><li class="mobileonly"><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+</li><li class="wideonly"><a href="http://sqlite.org/about.html">About</a>
+</li><li class="desktoponly"><a href="http://sqlite.org/docs.html">Documentation</a>
+</li><li class="desktoponly"><a href="http://sqlite.org/download.html">Download</a>
+</li><li class="wideonly"><a href="http://sqlite.org/copyright.html">License</a>
+</li><li class="desktoponly"><a href="http://sqlite.org/support.html">Support</a>
+</li><li class="desktoponly"><a href="http://sqlite.org/prosupport.html">Purchase</a>
+</li><li class="search" id="search_menubutton">
+<a href="javascript:void(0)" onclick='toggle_div("searchmenu")'>Search</a>
+</li></ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href="http://sqlite.org/about.html">About</a>
+</li><li><a href="http://sqlite.org/docs.html">Documentation</a>
+</li><li><a href="http://sqlite.org/download.html">Download</a>
+</li><li><a href="http://sqlite.org/support.html">Support</a>
+</li><li><a href="http://sqlite.org/prosupport.html">Purchase</a>
+</li></ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<span class="desktoponly">Search for:</span> <input name="q" type="text">
+<input value="Go" type="submit">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+</script>
+
+<div class="nosearch"><h1 align="center">SQL As Understood By SQLite</h1><p><a href="http://sqlite.org/lang.html">[Top]</a></p><h2>Core Functions</h2></div>
+
+<p>The core functions shown below are available by default. 
+<a href="http://sqlite.org/lang_datefunc.html">Date &amp; Time functions</a>,
+<a href="http://sqlite.org/lang_aggfunc.html">aggregate functions</a>, and
+<a href="http://sqlite.org/json1.html">JSON functions</a> are documented separately.  An
+application may define additional
+functions written in C and added to the database engine using
+the <a href="http://sqlite.org/c3ref/create_function.html">sqlite3_create_function()</a> API.</p>
+
+<style>
+#listtab26 tr td {vertical-align:top;}
+</style>
+<table id="listtab26" width="100%"><tbody><tr><td><ul class="multicol_list"><li><a href="http://sqlite.org/lang_corefunc.html#abs">abs(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#changes">changes()</a></li><li><a href="http://sqlite.org/lang_corefunc.html#char">char(X1,X2,...,XN)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#coalesce">coalesce(X,Y,...)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#glob">glob(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#hex">hex(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#ifnull">ifnull(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#instr">instr(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#last_insert_rowid">last_insert_rowid()</a></li><li><a href="http://sqlite.org/lang_corefunc.html#length">length(X)</a></li></ul></td>
+<td><ul class="multicol_list">
+<li><a href="http://sqlite.org/lang_corefunc.html#like">like(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#like">like(X,Y,Z)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#likelihood">likelihood(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#likely">likely(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#load_extension">load_extension(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#load_extension">load_extension(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#lower">lower(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#ltrim">ltrim(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#ltrim">ltrim(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#maxoreunc">max(X,Y,...)</a></li></ul></td>
+<td><ul class="multicol_list">
+<li><a href="http://sqlite.org/lang_corefunc.html#minoreunc">min(X,Y,...)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#nullif">nullif(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#printf">printf(FORMAT,...)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#quote">quote(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#random">random()</a></li><li><a href="http://sqlite.org/lang_corefunc.html#randomblob">randomblob(N)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#replace">replace(X,Y,Z)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#round">round(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#round">round(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#rtrim">rtrim(X)</a></li></ul></td>
+<td><ul class="multicol_list">
+<li><a href="http://sqlite.org/lang_corefunc.html#rtrim">rtrim(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#soundex">soundex(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#sqlite_compileoption_get">sqlite_compileoption_get(N)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#sqlite_compileoption_used">sqlite_compileoption_used(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#sqlite_source_id">sqlite_source_id()</a></li><li><a href="http://sqlite.org/lang_corefunc.html#sqlite_version">sqlite_version()</a></li><li><a href="http://sqlite.org/lang_corefunc.html#substr">substr(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#substr">substr(X,Y,Z)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#total_changes">total_changes()</a></li><li><a href="http://sqlite.org/lang_corefunc.html#trim">trim(X)</a></li></ul></td>
+<td><ul class="multicol_list">
+<li><a href="http://sqlite.org/lang_corefunc.html#trim">trim(X,Y)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#typeof">typeof(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#unicode">unicode(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#unlikely">unlikely(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#upper">upper(X)</a></li><li><a href="http://sqlite.org/lang_corefunc.html#zeroblob">zeroblob(N)</a></li></ul></td></tr></tbody></table>
+<script>
+var listitems26 = [{"u":"lang_corefunc.html#abs","x":"abs(X)","s":0},
+{"u":"lang_corefunc.html#changes","x":"changes()","s":0},
+{"u":"lang_corefunc.html#char","x":"char(X1,X2,...,XN)","s":0},
+{"u":"lang_corefunc.html#coalesce","x":"coalesce(X,Y,...)","s":0},
+{"u":"lang_corefunc.html#glob","x":"glob(X,Y)","s":0},
+{"u":"lang_corefunc.html#hex","x":"hex(X)","s":0},
+{"u":"lang_corefunc.html#ifnull","x":"ifnull(X,Y)","s":0},
+{"u":"lang_corefunc.html#instr","x":"instr(X,Y)","s":0},
+{"u":"lang_corefunc.html#last_insert_rowid","x":"last_insert_rowid()","s":0},
+{"u":"lang_corefunc.html#length","x":"length(X)","s":0},
+{"u":"lang_corefunc.html#like","x":"like(X,Y)","s":0},
+{"u":"lang_corefunc.html#like","x":"like(X,Y,Z)","s":0},
+{"u":"lang_corefunc.html#likelihood","x":"likelihood(X,Y)","s":0},
+{"u":"lang_corefunc.html#likely","x":"likely(X)","s":0},
+{"u":"lang_corefunc.html#load_extension","x":"load_extension(X)","s":0},
+{"u":"lang_corefunc.html#load_extension","x":"load_extension(X,Y)","s":0},
+{"u":"lang_corefunc.html#lower","x":"lower(X)","s":0},
+{"u":"lang_corefunc.html#ltrim","x":"ltrim(X)","s":0},
+{"u":"lang_corefunc.html#ltrim","x":"ltrim(X,Y)","s":0},
+{"u":"lang_corefunc.html#maxoreunc","x":"max(X,Y,...)","s":0},
+{"u":"lang_corefunc.html#minoreunc","x":"min(X,Y,...)","s":0},
+{"u":"lang_corefunc.html#nullif","x":"nullif(X,Y)","s":0},
+{"u":"lang_corefunc.html#printf","x":"printf(FORMAT,...)","s":0},
+{"u":"lang_corefunc.html#quote","x":"quote(X)","s":0},
+{"u":"lang_corefunc.html#random","x":"random()","s":0},
+{"u":"lang_corefunc.html#randomblob","x":"randomblob(N)","s":0},
+{"u":"lang_corefunc.html#replace","x":"replace(X,Y,Z)","s":0},
+{"u":"lang_corefunc.html#round","x":"round(X)","s":0},
+{"u":"lang_corefunc.html#round","x":"round(X,Y)","s":0},
+{"u":"lang_corefunc.html#rtrim","x":"rtrim(X)","s":0},
+{"u":"lang_corefunc.html#rtrim","x":"rtrim(X,Y)","s":0},
+{"u":"lang_corefunc.html#soundex","x":"soundex(X)","s":0},
+{"u":"lang_corefunc.html#sqlite_compileoption_get","x":"sqlite_compileoption_get(N)","s":0},
+{"u":"lang_corefunc.html#sqlite_compileoption_used","x":"sqlite_compileoption_used(X)","s":0},
+{"u":"lang_corefunc.html#sqlite_source_id","x":"sqlite_source_id()","s":0},
+{"u":"lang_corefunc.html#sqlite_version","x":"sqlite_version()","s":0},
+{"u":"lang_corefunc.html#substr","x":"substr(X,Y)","s":0},
+{"u":"lang_corefunc.html#substr","x":"substr(X,Y,Z)","s":0},
+{"u":"lang_corefunc.html#total_changes","x":"total_changes()","s":0},
+{"u":"lang_corefunc.html#trim","x":"trim(X)","s":0},
+{"u":"lang_corefunc.html#trim","x":"trim(X,Y)","s":0},
+{"u":"lang_corefunc.html#typeof","x":"typeof(X)","s":0},
+{"u":"lang_corefunc.html#unicode","x":"unicode(X)","s":0},
+{"u":"lang_corefunc.html#unlikely","x":"unlikely(X)","s":0},
+{"u":"lang_corefunc.html#upper","x":"upper(X)","s":0},
+{"u":"lang_corefunc.html#zeroblob","x":"zeroblob(N)","s":0}];
+var j = 0;
+var w = Math.max(document.documentElement.clientWidth,  window.innerWidth || 0);
+var nCol = Math.floor(w/225);
+if(nCol<=0) nCol=1;
+var nRow = Math.ceil((listitems26.length+1)/nCol);
+var h="<tr><td><ul class='multicol_list'>"
+var ea
+for(var i=0; i<listitems26.length; i++){
+  if( (++j)>nRow ){
+    h += "</ul></td>\n<td><ul class='multicol_list'>\n";
+    j = 1;
+  }
+  if(listitems26[i].u=="" || listitems26[i].s==2){
+    h += "<li>"
+    ea = ""
+  }else{
+    h += "<li><a href='";
+    h += listitems26[i].u;
+    h += "'>";
+    ea = "</a>"
+  }
+  if(listitems26[i].s==2 || listitems26[i].s==3) h += "<s>"
+  h += listitems26[i].x;
+  if(listitems26[i].s==2 || listitems26[i].s==3) h += "</s>"
+  h += ea
+  if(listitems26[i].s==1) h += "<small><i>(exp)</i></small>\n";
+  if(listitems26[i].s==3) h += "&sup1\n";
+  if(listitems26[i].s==4) h += "&sup2\n";
+  if(listitems26[i].s==5) h += "&sup3\n";
+}
+document.getElementById("listtab26").innerHTML = h;
+</script>
+<hr class="xhr">
+<dl>
+<a name="abs"></a>
+<dt><p><b>abs(<i>X</i>)</b></p></dt><dd><p>
+  The abs(X) function returns the absolute value of the numeric
+  argument X.  Abs(X) returns NULL if X is NULL. 
+  Abs(X) returns 0.0 if X is a string or blob
+  that cannot be converted to a numeric value.  If X is the 
+  integer -9223372036854775808 then abs(X) throws an integer overflow
+  error since there is no equivalent positive 64-bit two complement value.
+</p></dd>
+<a name="changes"></a>
+<dt><p><b>changes()</b></p></dt><dd><p>
+  The changes() function returns the number of database rows that were changed
+  or inserted or deleted by the most recently completed INSERT, DELETE,
+  or UPDATE statement, exclusive of statements in lower-level triggers.
+  The changes() SQL function is a wrapper around the <a href="http://sqlite.org/c3ref/changes.html">sqlite3_changes()</a>
+  C/C++ function and hence follows the same rules for counting changes.
+</p></dd>
+<a name="char"></a>
+<dt><p><b>char(<i>X1</i>,<i>X2</i>,...,<i>XN</i>)</b></p></dt><dd><p>
+  The char(X1,X2,...,XN) function returns a string composed of characters having the
+   unicode code point values of integers X1 through XN, respectively.
+</p></dd>
+<a name="coalesce"></a>
+<dt><p><b>coalesce(<i>X</i>,<i>Y</i>,...)</b></p></dt><dd><p>
+  The coalesce() function returns a copy of its first non-NULL argument, or
+  NULL if all arguments are NULL.  Coalesce() must have at least 
+  2 arguments.
+</p></dd>
+<a name="glob"></a>
+<dt><p><b>glob(<i>X</i>,<i>Y</i>)</b></p></dt><dd><p>
+  The glob(X,Y) function is equivalent to the
+  expression "<b>Y GLOB X</b>".
+  Note that the X and Y arguments are reversed in the glob() function
+  relative to the infix <a href="http://sqlite.org/lang_expr.html#glob">GLOB</a> operator.
+  If the <a href="http://sqlite.org/c3ref/create_function.html">sqlite3_create_function()</a> interface is used to
+  override the glob(X,Y) function with an alternative implementation then
+  the <a href="http://sqlite.org/lang_expr.html#glob">GLOB</a> operator will invoke the alternative implementation.
+</p></dd>
+<a name="hex"></a>
+<dt><p><b>hex(<i>X</i>)</b></p></dt><dd><p>
+  The hex() function interprets its argument as a BLOB and returns
+  a string which is the upper-case hexadecimal rendering of the content of
+  that blob.
+</p></dd>
+<a name="ifnull"></a>
+<dt><p><b>ifnull(<i>X</i>,<i>Y</i>)</b></p></dt><dd><p>
+  The ifnull() function returns a copy of its first non-NULL argument, or
+  NULL if both arguments are NULL.  Ifnull() must have exactly 2 arguments.
+  The ifnull() function is equivalent to <a href="http://sqlite.org/lang_corefunc.html#coalesce">coalesce()</a> with two arguments.
+</p></dd>
+<a name="instr"></a>
+<dt><p><b>instr(<i>X</i>,<i>Y</i>)</b></p></dt><dd><p>
+  The instr(X,Y) function finds the first occurrence of string Y within 
+  string X and returns the number of prior characters plus 1, or 0 if
+  Y is nowhere found within X.
+  Or, if X and Y are both BLOBs, then instr(X,Y) returns one
+  more than the number bytes prior to the first occurrence of Y, or 0 if
+  Y does not occur anywhere within X.
+  If both arguments X and Y to instr(X,Y) are non-NULL and are not BLOBs
+  then both are interpreted as strings.
+  If either X or Y are NULL in instr(X,Y) then the result is NULL.
+</p></dd>
+<a name="last_insert_rowid"></a>
+<dt><p><b>last_insert_rowid()</b></p></dt><dd><p>
+  The last_insert_rowid() function returns the <a href="http://sqlite.org/lang_createtable.html#rowid">ROWID</a>
+  of the last row insert from the database connection which invoked the
+  function.
+  The last_insert_rowid() SQL function is a wrapper around the
+  <a href="http://sqlite.org/c3ref/last_insert_rowid.html">sqlite3_last_insert_rowid()</a> C/C++ interface function.
+</p></dd>
+<a name="length"></a>
+<dt><p><b>length(<i>X</i>)</b></p></dt><dd><p>
+  For a string value X, the length(X) function returns the number of 
+  characters (not bytes) in X prior to the first NUL character.
+  Since SQLite strings do not normally contain NUL characters, the length(X)
+  function will usually return the total number of characters in the string X.
+  For a blob value X, length(X) returns the number of bytes in the blob.
+  If X is NULL then length(X) is NULL.
+  If X is numeric then length(X) returns the length of a string
+  representation of X.
+</p></dd>
+<a name="like"></a>
+<dt><p><b>like(<i>X</i>,<i>Y</i>)<br>like(<i>X</i>,<i>Y</i>,<i>Z</i>)</b></p></dt><dd><p>
+  The like() function is used to implement the
+  "<b>Y LIKE X [ESCAPE Z]</b>" expression. 
+  If the optional ESCAPE clause is present, then the
+  like() function is invoked with three arguments.  Otherwise, it is
+  invoked with two arguments only. Note that the X and Y parameters are
+  reversed in the like() function relative to the infix <a href="http://sqlite.org/lang_expr.html#like">LIKE</a> operator.
+  The <a href="http://sqlite.org/c3ref/create_function.html">sqlite3_create_function()</a> interface can be used to override the
+  like() function and thereby change the operation of the
+  <a href="http://sqlite.org/lang_expr.html#like">LIKE</a> operator.  When overriding the like() function, it may be important
+  to override both the two and three argument versions of the like() 
+  function. Otherwise, different code may be called to implement the
+  <a href="http://sqlite.org/lang_expr.html#like">LIKE</a> operator depending on whether or not an ESCAPE clause was 
+  specified.
+</p></dd>
+<a name="likelihood"></a>
+<dt><p><b>likelihood(<i>X</i>,<i>Y</i>)</b></p></dt><dd><p>
+  The likelihood(X,Y) function returns argument X unchanged.
+  The value Y in likelihood(X,Y) must be a floating point constant
+  between 0.0 and 1.0, inclusive.
+  The likelihood(X) function is a no-op that the code generator
+  optimizes away so that it consumes no CPU cycles during run-time
+  (that is, during calls to <a href="http://sqlite.org/c3ref/step.html">sqlite3_step()</a>).
+  The purpose of the likelihood(X,Y) function is to provide a hint
+  to the query planner that the argument X is a boolean that is
+  true with a probability of approximately Y.
+  The <a href="http://sqlite.org/lang_corefunc.html#unlikely">unlikely(X)</a> function is short-hand for likelihood(X,0.0625).
+  The <a href="http://sqlite.org/lang_corefunc.html#likely">likely(X)</a> function is short-hand for likelihood(X,0.9375).
+</p></dd>
+<a name="likely"></a>
+<dt><p><b>likely(<i>X</i>)</b></p></dt><dd><p>
+  The likely(X) function returns the argument X unchanged.
+  The likely(X) function is a no-op that the code generator
+  optimizes away so that it consumes no CPU cycles at
+  run-time (that is, during calls to <a href="http://sqlite.org/c3ref/step.html">sqlite3_step()</a>).
+  The purpose of the likely(X) function is to provide a hint
+  to the query planner that the argument X is a boolean value
+  that is usually true. The likely(X) function is equivalent
+  to <a href="http://sqlite.org/lang_corefunc.html#likelihood">likelihood</a>(X,0.9375). See also: <a href="http://sqlite.org/lang_corefunc.html#unlikely">unlikely(X)</a>.
+</p></dd>
+<a name="load_extension"></a>
+<dt><p><b>load_extension(<i>X</i>)<br>load_extension(<i>X</i>,<i>Y</i>)</b></p></dt><dd><p>
+  The load_extension(X,Y) function loads <a href="http://sqlite.org/loadext.html">SQLite extensions</a> out of the shared
+  library file named X using the entry point Y.  The result of load_extension()
+  is always a NULL.  If Y is omitted then the default entry point name is used.
+  The load_extension() function raises an exception if the extension fails to
+  load or initialize correctly.
+
+  </p><p>The load_extension() function will fail if the extension attempts to 
+  modify or delete an SQL function or collating sequence.  The
+  extension can add new functions or collating sequences, but cannot
+  modify or delete existing functions or collating sequences because
+  those functions and/or collating sequences might be used elsewhere
+  in the currently running SQL statement.  To load an extension that
+  changes or deletes functions or collating sequences, use the
+  <a href="http://sqlite.org/c3ref/load_extension.html">sqlite3_load_extension()</a> C-language API.</p>
+
+  <p>For security reasons, extension loaded is turned off by default and must
+  be enabled by a prior call to <a href="http://sqlite.org/c3ref/enable_load_extension.html">sqlite3_enable_load_extension()</a>.</p>
+</dd>
+<a name="lower"></a>
+<dt><p><b>lower(<i>X</i>)</b></p></dt><dd><p>
+  The lower(X) function returns a copy of string X with all ASCII characters
+  converted to lower case.  The default built-in lower() function works
+  for ASCII characters only.  To do case conversions on non-ASCII
+  characters, load the ICU extension.
+</p></dd>
+<a name="ltrim"></a>
+<dt><p><b>ltrim(<i>X</i>)<br>ltrim(<i>X</i>,<i>Y</i>)</b></p></dt><dd><p>
+  The ltrim(X,Y) function returns a string formed by removing any and all
+  characters that appear in Y from the left side of X.
+  If the Y argument is omitted, ltrim(X) removes spaces from the left side
+  of X.
+</p></dd>
+<a name="maxoreunc"></a>
+<dt><p><b>max(<i>X</i>,<i>Y</i>,...)</b></p></dt><dd><p>
+  The multi-argument max() function returns the argument with the 
+  maximum value, or return NULL if any argument is NULL. 
+  The multi-argument max() function searches its arguments from left to right
+  for an argument that defines a collating function and uses that collating
+  function for all string comparisons.  If none of the arguments to max()
+  define a collating function, then the BINARY collating function is used.
+  Note that <b>max()</b> is a simple function when
+  it has 2 or more arguments but operates as an
+  <a href="http://sqlite.org/lang_aggfunc.html#maxggunc">aggregate function</a> if given only a single argument.
+</p></dd>
+<a name="minoreunc"></a>
+<dt><p><b>min(<i>X</i>,<i>Y</i>,...)</b></p></dt><dd><p>
+  The multi-argument min() function returns the argument with the
+  minimum value.
+  The multi-argument min() function searches its arguments from left to right
+  for an argument that defines a collating function and uses that collating
+  function for all string comparisons.  If none of the arguments to min()
+  define a collating function, then the BINARY collating function is used.
+  Note that <b>min()</b> is a simple function when
+  it has 2 or more arguments but operates as an 
+  <a href="http://sqlite.org/lang_aggfunc.html#minggunc">aggregate function</a> if given
+  only a single argument.
+</p></dd>
+<a name="nullif"></a>
+<dt><p><b>nullif(<i>X</i>,<i>Y</i>)</b></p></dt><dd><p>
+  The nullif(X,Y) function returns its first argument if the arguments are
+  different and NULL if the arguments are the same.  The nullif(X,Y) function
+  searches its arguments from left to right for an argument that defines a
+  collating function and uses that collating function for all string
+  comparisons.  If neither argument to nullif() defines a collating function
+  then the BINARY is used.
+</p></dd>
+<a name="printf"></a>
+<dt><p><b>printf(<i>FORMAT</i>,...)</b></p></dt><dd><p>
+  The printf(FORMAT,...) SQL function works like the <a href="http://sqlite.org/c3ref/mprintf.html">sqlite3_mprintf()</a> C-language
+  function and the printf() function from the standard C library.
+  The first argument is a format string that specifies how to construct the output
+  string using values taken from subsequent arguments.  If the FORMAT argument is
+  missing or NULL then the result is NULL.  The %n format is silently ignored and
+  does not consume an argument.  The %p format is an alias for %X.  The %z format
+  is interchangeable with %s.  If there are too few arguments in the argument list,
+  missing arguments are assumed to have a NULL value, which is translated into
+  0 or 0.0 for numeric formats or an empty string for %s.
+</p></dd>
+<a name="quote"></a>
+<dt><p><b>quote(<i>X</i>)</b></p></dt><dd><p>
+  The quote(X) function returns the text of an SQL literal which
+  is the value of its argument suitable for inclusion into an SQL statement.
+  Strings are surrounded by single-quotes with escapes on interior quotes
+  as needed.  BLOBs are encoded as hexadecimal literals.
+  Strings with embedded NUL characters cannot be represented as string
+  literals in SQL and hence the returned string literal is truncated prior
+  to the first NUL.
+</p></dd>
+<a name="random"></a>
+<dt><p><b>random()</b></p></dt><dd><p>
+  The random() function returns a pseudo-random integer
+  between -9223372036854775808 and +9223372036854775807.
+</p></dd>
+<a name="randomblob"></a>
+<dt><p><b>randomblob(<i>N</i>)</b></p></dt><dd><p>
+  The randomblob(N) function return an N-byte blob containing pseudo-random
+  bytes. If N is less than 1 then a 1-byte random blob is returned.
+
+  </p><p>Hint:  applications can generate globally unique identifiers
+  using this function together with <a href="http://sqlite.org/lang_corefunc.html#hex">hex()</a> and/or
+  <a href="http://sqlite.org/lang_corefunc.html#lower">lower()</a> like this:</p>
+
+  <blockquote>
+  hex(randomblob(16))<br><br>
+  lower(hex(randomblob(16)))
+  </blockquote>
+</dd>
+<a name="replace"></a>
+<dt><p><b>replace(<i>X</i>,<i>Y</i>,<i>Z</i>)</b></p></dt><dd><p>
+  The replace(X,Y,Z) function returns a string formed by substituting
+  string Z for every occurrence of string Y in string X.  The <a href="http://sqlite.org/datatype3.html#collation">BINARY</a>
+  collating sequence is used for comparisons.  If Y is an empty
+  string then return X unchanged.  If Z is not initially
+  a string, it is cast to a UTF-8 string prior to processing.
+</p></dd>
+<a name="round"></a>
+<dt><p><b>round(<i>X</i>)<br>round(<i>X</i>,<i>Y</i>)</b></p></dt><dd><p>
+  The round(X,Y) function returns a floating-point
+  value X rounded to Y digits to the right of the decimal point.
+  If the Y argument is omitted, it is assumed to b</p></dd></dl></body></html>

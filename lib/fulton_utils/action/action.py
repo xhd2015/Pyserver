@@ -8,6 +8,7 @@
 import fulton_utils.lib_database.database_manipulate as dbman
 import io
 import json
+import traceback
 
 class NoSuchActoinException(Exception):
 	def __init__(self,message):
@@ -103,11 +104,15 @@ class Handler:
 		self.log("[onNoActionException]"+actionname)
 		self.setRtndata(status="failed",reason="no such action :"+actionname+"\nSent data is:"+self.originalData)
 	def onServeException(self,e):
-		self.log("[onServeException "+str(type(e))+"]"+str(e))
+		self.log("[ onServeException ]===START===")
+		self.log("".join(Handler.formatException(e)))
+		self.log("[ onServeException ]===END====")
 		self.setRtndata(status="failed",reason="[Exception "+str(type(e))+"]"+str(e))
 	def onDataGetException(self,e):
 		self.setRtndata(status="failed",reason=Handler.__help__)
-	
+	@staticmethod
+	def formatException(e):
+		return traceback.format_exception(type(e), e, e.__traceback__)
 	def finishServe(self):
 		data=json.dumps(self.rtnData)
 		self.log("[Finish Service] data:"+data)

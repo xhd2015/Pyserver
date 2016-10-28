@@ -49,13 +49,25 @@ $$.l=function(p){
  * expose some Object
  */
 $$.exports=function(){
-	 $A=Ajaxform_support;
-	 $H=Hdata_support;
-	 $P=Prompt_support;
-	 $T=Transfer_support;
-	 $U=Utils;
-	 $D=Dynamiccolumn_support;
-	 $V=Vargroup_support;
+	let plugins={"$A":"Ajaxform_support",
+	             "$H":"Hdata_support",
+	             "$P":"Prompt_support",
+	             "$T":"Transfer_support",
+	             "$U":"Utils",
+	            "$D":"Dynamiccolumn_support",
+	            "$V":"Vargroup_support",
+			}
+	for(let key in plugins)
+	{
+		try{
+			window[key]=eval(plugins[key]);
+		}catch(e){
+			console.log(e);
+		}
+	}
+	
+
+
 }
 /**
  *撤销exports的变量 

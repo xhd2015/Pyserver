@@ -22,7 +22,8 @@
 <body>
 	<label >内置命令</label> <br/>
 	<a href="javascript: $.post('/script/python_exec_postdata.html','s.uf.backupDB(s)',function(resp){setPrompt(resp);});">备份DB</a> <br/>
-	<a href="javascript: $.post('/script/python_exec_postdata.html','s.uf.listBackups(s)',function(resp){setPrompt(resp);});">显示备份文件夹</a>
+	<a href="javascript: $.post('/script/python_exec_postdata.html','s.uf.listBackups(s)',function(resp){setPrompt(resp);});">显示备份文件夹</a> <br/>
+	<a href="http://192.168.52.11/cgi-bin/srun_portal?action=login&username=1144420112@sam&password=Xhd110120119&ac_id=1&type=1&wbaredirect=&mac=&user_ip=&vrf_id=0">登录</a> <br/>
 	<hr/>
 	<p>建议 : 换行符好和分号不要同时用</p>
 	<form action="/Plandev/ajax-services/system_local_action.html">

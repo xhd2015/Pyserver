@@ -27,29 +27,38 @@ Vargroup_support={};
 	 */
 	$$.feed=function(jform,data)
 	{
+		if(!data)
+			return;
 		let visited={};
+		//alert(jform.html());
 		/*
 		 *先调整数据,然后再设置
 		 */
 		for(let key in data)
 		{
-			if(typeof data[key]===typeof [] && !visited[key])
+			if($.isArray(data[key]) && !visited[key])
 			{
 				/*
 				 *设置key的访问特性,防止大量重复
 				 */
-				let jfirst=jform.find("[name="+key+"]").parent("[firstcolumn]");
-				jfirst.find("[name]").each(function(){
-					let jself=$(this);
-					let thiskey=jself.attr("name");
-					visited[thiskey]=true;
+				/*
+				 * 
+				 * 一个form可能具有多个firstcolumn的数组项
+				 */
+				jform.find("[firstcolumn]").has("[name="+key+"]").each(function(){
+					let jfirst=$(this);
+					jfirst.find("[name]").each(function(){
+						let jself=$(this);
+						let thiskey=jself.attr("name");
+						visited[thiskey]=true;
+					});
+					$$.fix(jfirst.parent(),data[key].length);
 				});
 				
-				$$.fix(jfirst.parent(),data[key].length);
+				
 			}
 		}
 		Hdata_support.data(jform,data);
-		
 	}
 	
 	//传入数目,
@@ -59,13 +68,21 @@ Vargroup_support={};
 	 * tested: same
 	 * 			more
 	 * 			less
+	 * 
+	 * @ifZero:=function(hide)
 	 * 	
 	 */
-	$$.fix=function(jgroup,num)
+	$$.fix=function(jgroup,num,ifZero)
 	{
+		if(!ifZero){
+			ifZero=function(jcolumn){
+				jcolumn.hide();
+			}
+		}
 		let curNum=0;
 		let jfirst=jgroup.find("[firstcolumn]");
 		let jstart=jfirst;
+		
 		while(!jstart.is(":button"))//无需复制的项数
 		{
 			curNum++;
@@ -76,13 +93,13 @@ Vargroup_support={};
 		let jadd=jstart;
 		while(curNum>num)//删除
 		{
-			curNum--
 			if(jadd.prev().is("[firstcolumn]")) //保留第一项
 			{
-				continue;
+				ifZero(jadd.prev());
 			}else{
 				jadd.prev().detach();
 			}
+			curNum--;
 		}
 		//这里curNum<=num
 		while(curNum<num)//增加
@@ -90,6 +107,7 @@ Vargroup_support={};
 			Dynamiccolumn_support.addColumn(jadd);
 			curNum++;
 		}
+		//这里curNum==num,正是我们想要的结果
 		
 	}
 	
